@@ -1,38 +1,49 @@
 const createForm = document.getElementById("create-form");
 const projectsContainer = document.getElementById("projects-container");
 
+createForm!.addEventListener("submit", function (e) {
+    e.preventDefault();
+    onNewProject(e);
+});
+
 type Project = {
-    Id: string,
-    Name: string,
-    Description: string
+    id: string;
+    name: string;
+    description: string;
 }
 
-if (createForm) {
-  createForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    createProject(event);
-  });
+function getFormData() {
+    const nameInput = document.getElementById("name") as HTMLInputElement
+    const descriptionInput = document.getElementById("description") as HTMLInputElement
+ 
+    const name: string = nameInput.value.trim()
+    const description: string = descriptionInput.value.trim()
+    return {name, description}
 }
 
-function createProject(e: Event){
-    const nameInput = document.getElementById("name") as HTMLInputElement;
-    const descriptionInput = document.getElementById("description") as HTMLInputElement;
+function onNewProject(e: Event) {
+    const { name, description } = getFormData()
+    
+    if (!name || !description) {
+        alert("Fill the form!")
+        return
+    }
+ 
+    const project = createProject(name, description)
+    saveProject(project)
+    showProjects()
+}
 
-    const name: string = nameInput.value.trim();
-    const description: string = descriptionInput.value.trim();
+function saveProject(project: Project) {
+    localStorage.setItem(project.id, JSON.stringify(project));
+}
 
-    if(name && description)
-    {
-        const newProject: Project = {
-            Id: self.crypto.randomUUID(),
-            Name: name,
-            Description: description
-        }
-
-        localStorage.setItem(newProject.Id, JSON.stringify(newProject));
-        showProjects();
-    }else{
-        alert("Fill the form!");
+function createProject(name: string, description: string): Project {
+    const id = self.crypto.randomUUID()
+    return {
+        id,
+        name,
+        description
     }
 }
 
@@ -52,11 +63,11 @@ function showSingleProject(project: Project) : void{
     let deleteProjectBtn = document.createElement('button');
     let updateProjectBtn = document.createElement('button');
 
-    projectSpan.innerHTML = `Name: ${project.Name}, description: ${project.Description}`;
+    projectSpan.innerHTML = `name: ${project.name}, description: ${project.description}`;
     projectSpan.addEventListener("click", () => markProjectOut(projectDiv));
     deleteProjectBtn.classList.add("project-button");
     deleteProjectBtn.innerText="Delete";
-    deleteProjectBtn.addEventListener("click", () => deleteProject(project.Id));
+    deleteProjectBtn.addEventListener("click", () => handleDeleteClick(project.id));
 
     updateProjectBtn.classList.add("project-button");
     updateProjectBtn.innerText="Update";
@@ -72,54 +83,62 @@ function markProjectOut(projectDiv: HTMLDivElement): void{
     projectDiv.classList.toggle("marked");
 }
 
-function deleteProject(projectId: string){
-    localStorage.removeItem(projectId);
+function handleDeleteClick(projectId: string){
+    deleteProject(projectId);
+    showProjects();
+}
+
+function deleteProject(projectid: string){
+    localStorage.removeItem(projectid);
     showProjects();
 }
 
 function updateProject(project: Project, projectDiv: HTMLDivElement, projectSpan: HTMLSpanElement){
     projectSpan.classList.add('beingUpdated');
 
-    let labelForName = document.createElement('label');
-    labelForName.setAttribute("for", "inputName");
-    var labelForNameText = document.createTextNode("Name");
-    labelForName.appendChild(labelForNameText);
-    let inputForName = document.createElement('input');
-    inputForName.setAttribute("type", "text");
-    inputForName.placeholder = project.Name;
+    let labelForname = document.createElement('label');
+    labelForname.setAttribute("for", "inputname");
+    var labelFornameText = document.createTextNode("name");
+    labelForname.appendChild(labelFornameText);
+    let inputForname = document.createElement('input');
+    inputForname.setAttribute("type", "text");
+    inputForname.placeholder = project.name;
 
-    let labelForDescription = document.createElement('label');
-    labelForDescription.setAttribute("for", "inputDescription");
-    var labelForDescriptionText = document.createTextNode("Description");
-    labelForDescription.appendChild(labelForDescriptionText);
-    let inputForDescription = document.createElement('input');
-    inputForDescription.setAttribute("type", "text");
-    inputForDescription.placeholder = project.Description;
+    let labelFordescription = document.createElement('label');
+    labelFordescription.setAttribute("for", "inputdescription");
+    var labelFordescriptionText = document.createTextNode("description");
+    labelFordescription.appendChild(labelFordescriptionText);
+    let inputFordescription = document.createElement('input');
+    inputFordescription.setAttribute("type", "text");
+    inputFordescription.placeholder = project.description;
 
     let saveUpdatedProjectBtn = document.createElement('button');
     saveUpdatedProjectBtn.innerText="Save";
-    saveUpdatedProjectBtn.addEventListener("click", () => saveUpdatedProject(project, inputForName.value, inputForDescription.value));
+    saveUpdatedProjectBtn.addEventListener("click", () => handleSaveUpdatedProject(project, inputForname.value, inputFordescription.value));
 
-    projectDiv.append(labelForName);
-    projectDiv.append(inputForName);
-    projectDiv.append(labelForDescription);
-    projectDiv.append(inputForDescription);
+    projectDiv.append(labelForname);
+    projectDiv.append(inputForname);
+    projectDiv.append(labelFordescription);
+    projectDiv.append(inputFordescription);
     projectDiv.append(saveUpdatedProjectBtn);
+}
+
+function handleSaveUpdatedProject(project: Project, name: string, description: string){
+    saveUpdatedProject(project, name, description);
+    showProjects();
 }
 
 function saveUpdatedProject(project: Project, name: string, description: string){
     let retrievedProject: Project | null = null;
-    const storedProject = localStorage.getItem(project.Id);
+    const storedProject = localStorage.getItem(project.id);
     
     if (storedProject) {
         retrievedProject = JSON.parse(storedProject);
     }
-    retrievedProject!.Name = name;
-    retrievedProject!.Description = description;
+    retrievedProject!.name = name;
+    retrievedProject!.description = description;
 
-    localStorage.setItem(retrievedProject!.Id, JSON.stringify(retrievedProject!));
-
-    showProjects();
+    localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
 }
 
 showProjects();
