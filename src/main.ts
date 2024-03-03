@@ -15,16 +15,18 @@ if (createForm) {
 }
 
 function createProject(e: Event){
-    const formData = new FormData(e.target as HTMLFormElement);
-    const name: string = formData.get("name") as string;
-    const description: string = formData.get("description") as string;
+    const nameInput = document.getElementById("name") as HTMLInputElement;
+    const descriptionInput = document.getElementById("description") as HTMLInputElement;
+
+    const name: string = nameInput.value.trim();
+    const description: string = descriptionInput.value.trim();
 
     if(name && description)
     {
         const newProject: Project = {
             Id: self.crypto.randomUUID(),
-            Name: name,
-            Description: description
+            Name: name.trim(),
+            Description: description.trim()
         }
 
         localStorage.setItem(newProject.Id, JSON.stringify(newProject));
