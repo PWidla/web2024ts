@@ -25,8 +25,8 @@ function createProject(e: Event){
     {
         const newProject: Project = {
             Id: self.crypto.randomUUID(),
-            Name: name.trim(),
-            Description: description.trim()
+            Name: name,
+            Description: description
         }
 
         localStorage.setItem(newProject.Id, JSON.stringify(newProject));
