@@ -7,6 +7,7 @@ const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
 let loggedUser: User| null = null;
+let chosenProject: string | null = null;
 
 createForm!.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -17,6 +18,29 @@ type Project = {
     id: string;
     name: string;
     description: string;
+}
+
+type Story = {
+    id: string;
+    name: string;
+    description: string;
+    priority: Priority;
+    project: Project;
+    createdDate: Date;
+    status: Status
+    owned: User;
+}
+
+enum Priority {
+    Low = 0,
+    Medium = 1,
+    High = 2
+}
+
+enum Status {
+    ToDo = 0,
+    Doing = 1,
+    Done = 2
 }
 
 class User{
@@ -136,18 +160,20 @@ function handleChooseProjectBtn(projectId: string){
 }
 
 function chooseProject(projectId: string){
+    chosenProject = projectId;
     localStorage.setItem("chosenProject", projectId)
 }
 
 function showStoriesForProject(projectId: string){
+    projectsH3!.style.display = "none";
     projectFormContainer!.style.display = "none";
     projectsContainer!.style.display = "none";
-    projectsH3!.style.display = "none";
 
-    storyFormContainer!.style.display = "block";
-    storiesContainer!.style.display = "block";
     storiesH3!.style.display = "block";
-
+    storyFormContainer!.style.display = "flex";
+    storyFormContainer!.style.flexDirection = "column";
+    storiesContainer!.style.display = "flex";
+    storiesContainer!.style.flexDirection = "column";
 }
 
 function updateProject(project: Project, projectDiv: HTMLDivElement, projectSpan: HTMLSpanElement){

@@ -22,10 +22,33 @@
       <!-- stories -->
       <div id="story-form-container">
         <form id="create-form">
-          <label for="name">Name</label>
-          <input type="text" name="name" id="name" />
-          <label for="description">Description</label>
-          <input type="text" name="description" id="description" />
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+
+          <label for="description">Description:</label>
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            cols="50"
+            required
+          >
+          </textarea>
+
+          <label for="priority">Priority:</label>
+          <select id="priority" name="priority" required>
+            <option value="0">Low</option>
+            <option value="1">Medium</option>
+            <option value="2">High</option>
+          </select>
+
+          <label for="status">Status:</label>
+          <select id="status" name="status" required>
+            <option value="0">ToDo</option>
+            <option value="1">Doing</option>
+            <option value="2">Done</option>
+          </select>
+
           <input type="submit" value="Submit" id="submit-btn" />
         </form>
       </div>
