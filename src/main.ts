@@ -1,5 +1,6 @@
 const createForm = document.getElementById("create-form");
 const projectsContainer = document.getElementById("projects-container");
+let loggedUser: User| null = null;
 
 createForm!.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -10,6 +11,28 @@ type Project = {
     id: string;
     name: string;
     description: string;
+}
+
+class User{
+    id: string;
+    username: string;
+    loggedIn: boolean;
+
+    constructor(id: string, username: string) {
+        this.id = id;
+        this.username = username;
+        this.loggedIn = false;
+    }
+
+    login(): void {
+        loggedUser = this;
+        this.loggedIn = true;
+    }
+
+    logout(): void {
+        loggedUser = null;
+        this.loggedIn = false;
+    }
 }
 
 function getFormData() {
@@ -141,4 +164,35 @@ function saveUpdatedProject(project: Project, name: string, description: string)
     localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
 }
 
+function createUser(username: string): void{
+    const user = localStorage.getItem(username);
+    if(!user)
+    {
+        const user = new User(
+            self.crypto.randomUUID(),
+            username
+        )
+        localStorage.setItem(username, JSON.stringify(user))
+        return
+    }
+    // alert("User with this username alreadt exists");
+}
+
+function getUser(username: string): User | null {
+    const userString = localStorage.getItem(username);
+    if (userString) {
+        const userData = JSON.parse(userString);
+        return new User(userData.id, userData.username);
+    }
+    return null;
+}
+
+function mockLoggedUser(): void {
+    createUser("mock");
+    const user = getUser("mock");
+    user!.login();
+    console.log(loggedUser);
+}
+
+mockLoggedUser();
 showProjects();
