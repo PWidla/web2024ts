@@ -1,5 +1,11 @@
+const mainContainer = document.getElementById("main");
 const createForm = document.getElementById("create-form");
 const projectsContainer = document.getElementById("projects-container");
+const projectFormContainer = document.getElementById("project-form-container");
+const projectsH3 = document.getElementById("projects-h3");
+const storiesContainer = document.getElementById("stories-container");
+const storyFormContainer = document.getElementById("story-form-container");
+const storiesH3 = document.getElementById("stories-h3");
 let loggedUser: User| null = null;
 
 createForm!.addEventListener("submit", function (e) {
@@ -15,12 +21,14 @@ type Project = {
 
 class User{
     id: string;
-    username: string;
+    firstName: string;
+    lastName: string;
     loggedIn: boolean;
 
-    constructor(id: string, username: string) {
+    constructor(id: string, firstName: string, lastName: string) {
         this.id = id;
-        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.loggedIn = false;
     }
 
@@ -85,6 +93,7 @@ function showSingleProject(project: Project) : void{
     let projectSpan = document.createElement('span');
     let deleteProjectBtn = document.createElement('button');
     let updateProjectBtn = document.createElement('button');
+    let chooseProjectBtn = document.createElement('button');
 
     projectSpan.innerHTML = `name: ${project.name}, description: ${project.description}`;
     projectSpan.addEventListener("click", () => markProjectOut(projectDiv));
@@ -96,9 +105,14 @@ function showSingleProject(project: Project) : void{
     updateProjectBtn.innerText="Update";
     updateProjectBtn.addEventListener("click", () => updateProject(project,projectDiv, projectSpan));
 
+    chooseProjectBtn.classList.add("project-button");
+    chooseProjectBtn.innerText="Choose";
+    chooseProjectBtn.addEventListener("click", () => handleChooseProjectBtn(project.id));
+
     projectDiv!.appendChild(projectSpan);
     projectDiv!.appendChild(deleteProjectBtn);
     projectDiv!.appendChild(updateProjectBtn);
+    projectDiv!.appendChild(chooseProjectBtn);
     projectsContainer!.appendChild(projectDiv);
 }
 
@@ -111,9 +125,29 @@ function handleDeleteClick(projectId: string){
     showProjects();
 }
 
-function deleteProject(projectid: string){
-    localStorage.removeItem(projectid);
+function deleteProject(projectId: string){
+    localStorage.removeItem(projectId);
     showProjects();
+}
+
+function handleChooseProjectBtn(projectId: string){
+    chooseProject(projectId);
+    showStoriesForProject(projectId);
+}
+
+function chooseProject(projectId: string){
+    localStorage.setItem("chosenProject", projectId)
+}
+
+function showStoriesForProject(projectId: string){
+    projectFormContainer!.style.display = "none";
+    projectsContainer!.style.display = "none";
+    projectsH3!.style.display = "none";
+
+    storyFormContainer!.style.display = "block";
+    storiesContainer!.style.display = "block";
+    storiesH3!.style.display = "block";
+
 }
 
 function updateProject(project: Project, projectDiv: HTMLDivElement, projectSpan: HTMLSpanElement){
@@ -164,32 +198,33 @@ function saveUpdatedProject(project: Project, name: string, description: string)
     localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
 }
 
-function createUser(username: string): void{
-    const user = localStorage.getItem(username);
+function createUser(firstName: string, lastName: string): void{
+    const user = localStorage.getItem(`user-${firstName}${lastName}`);
     if(!user)
     {
         const user = new User(
             self.crypto.randomUUID(),
-            username
+            firstName,
+            lastName
         )
-        localStorage.setItem(username, JSON.stringify(user))
+        localStorage.setItem(`user-${firstName}${lastName}`, JSON.stringify(user))
         return
     }
     // alert("User with this username alreadt exists");
 }
 
-function getUser(username: string): User | null {
-    const userString = localStorage.getItem(username);
+function getUser(firstName: string, lastName: string): User | null {
+    const userString = localStorage.getItem(`user-${firstName}${lastName}`);
     if (userString) {
         const userData = JSON.parse(userString);
-        return new User(userData.id, userData.username);
+        return new User(userData.id, userData.firstName, userData.lastName);
     }
     return null;
 }
 
 function mockLoggedUser(): void {
-    createUser("mock");
-    const user = getUser("mock");
+    createUser("mock", "mockowski");
+    const user = getUser("mock", "mockowski");
     user!.login();
     console.log(loggedUser);
 }

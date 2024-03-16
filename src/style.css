@@ -1,8 +1,14 @@
+#story-form-container,
+#stories-h3,
+#stories-container {
+  display: none;
+}
+
 #form-container {
   height: 10em;
 }
 
-#create-form,
+#projects-create-form,
 #projects-container {
   display: flex;
   flex-direction: column;
@@ -19,8 +25,8 @@
   display: none;
 }
 
-#form-container label,
-#form-container input {
+#projects-create-form label,
+#projects-create-form input {
   margin-bottom: 10px;
   width: max-content;
 }
