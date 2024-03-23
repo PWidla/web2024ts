@@ -1,5 +1,5 @@
 const mainContainer = document.getElementById("main");
-const createForm = document.getElementById("create-form");
+const projectCreateForm = document.getElementById("project-create-form");
 const projectsContainer = document.getElementById("projects-container");
 const projectFormContainer = document.getElementById("project-form-container");
 const projectsH3 = document.getElementById("projects-h3");
@@ -9,7 +9,7 @@ const storiesH3 = document.getElementById("stories-h3");
 let loggedUser: User| null = null;
 let chosenProject: string | null = null;
 
-createForm!.addEventListener("submit", function (e) {
+projectCreateForm!.addEventListener("submit", function (e) {
     e.preventDefault();
     onNewProject(e);
 });
@@ -68,8 +68,8 @@ class User{
 }
 
 function getFormData() {
-    const nameInput = document.getElementById("name") as HTMLInputElement
-    const descriptionInput = document.getElementById("description") as HTMLInputElement
+    const nameInput = document.getElementById("project-name") as HTMLInputElement
+    const descriptionInput = document.getElementById("project-description") as HTMLInputElement
  
     const name: string = nameInput.value.trim()
     const description: string = descriptionInput.value.trim()
@@ -164,16 +164,24 @@ function chooseProject(projectId: string){
     localStorage.setItem("chosenProject", projectId)
 }
 
-function showStoriesForProject(projectId: string){
-    projectsH3!.style.display = "none";
-    projectFormContainer!.style.display = "none";
-    projectsContainer!.style.display = "none";
+function toggleClasses(): void{
+    projectsH3!.classList.toggle("h3-element");
+    projectFormContainer!.classList.toggle("form-container");
+    projectsContainer!.classList.toggle("entity-container");
+    projectsH3!.classList.toggle("hidden-element");
+    projectFormContainer!.classList.toggle("hidden-element");
+    projectsContainer!.classList.toggle("hidden-element");
 
-    storiesH3!.style.display = "block";
-    storyFormContainer!.style.display = "flex";
-    storyFormContainer!.style.flexDirection = "column";
-    storiesContainer!.style.display = "flex";
-    storiesContainer!.style.flexDirection = "column";
+    storiesH3!.classList.toggle("h3-element");
+    storyFormContainer!.classList.toggle("form-container");
+    storiesContainer!.classList.toggle("entity-container");
+    storiesH3!.classList.toggle("hidden-element");
+    storyFormContainer!.classList.toggle("hidden-element");
+    storiesContainer!.classList.toggle("hidden-element");
+}
+
+function showStoriesForProject(projectId: string){
+    toggleClasses();
 }
 
 function updateProject(project: Project, projectDiv: HTMLDivElement, projectSpan: HTMLSpanElement){

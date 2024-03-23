@@ -8,27 +8,31 @@
   </head>
   <body>
     <div id="main">
-      <div id="project-form-container">
-        <form id="create-form">
-          <label for="name">Name</label>
-          <input type="text" name="name" id="name" />
-          <label for="description">Description</label>
-          <input type="text" name="description" id="description" />
+      <div id="project-form-container" class="form-container">
+        <form id="project-create-form" class="create-form">
+          <label for="project-name">Name</label>
+          <input type="text" name="project-name" id="project-name" />
+          <label for="project-description">Description</label>
+          <input
+            type="text"
+            name="project-description"
+            id="project-description"
+          />
           <input type="submit" value="Submit" id="submit-btn" />
         </form>
       </div>
-      <h3 id="projects-h3">Projects:</h3>
-      <div id="projects-container"></div>
+      <h3 id="projects-h3" class="h3-element">Projects:</h3>
+      <div id="projects-container" class="entity-container"></div>
       <!-- stories -->
-      <div id="story-form-container">
-        <form id="create-form">
-          <label for="name">Name:</label>
-          <input type="text" id="name" name="name" required />
+      <div id="story-form-container" class="hidden-element">
+        <form id="story-create-form" class="create-form">
+          <label for="story-name">Name:</label>
+          <input type="text" id="story-name" name="story-name" required />
 
-          <label for="description">Description:</label>
+          <label for="story-description">Description:</label>
           <textarea
-            id="description"
-            name="description"
+            id="story-description"
+            name="story-description"
             rows="4"
             cols="50"
             required
@@ -52,8 +56,8 @@
           <input type="submit" value="Submit" id="submit-btn" />
         </form>
       </div>
-      <h3 id="stories-h3">Stories:</h3>
-      <div id="stories-container"></div>
+      <h3 id="stories-h3" class="hidden-element">Stories:</h3>
+      <div id="stories-container" class="hidden-element"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

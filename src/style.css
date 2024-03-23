@@ -1,20 +1,26 @@
-#story-form-container,
-#stories-h3,
-#stories-container {
+.hidden-element {
   display: none;
 }
 
-#form-container {
-  height: 10em;
+#story-form-container {
+  height: 25em;
 }
 
-#projects-create-form,
-#projects-container {
+#project-form-container {
+  height: 15em;
+}
+
+.create-form,
+.entity-container {
   display: flex;
   flex-direction: column;
 }
 
-#projects-container > div {
+.create-form > * {
+  margin-top: 0.5em;
+}
+
+.entity-container > div {
   padding-bottom: 30px;
   cursor: pointer;
   display: flex;
@@ -25,8 +31,8 @@
   display: none;
 }
 
-#projects-create-form label,
-#projects-create-form input {
+.form-container label,
+.form-container input {
   margin-bottom: 10px;
   width: max-content;
 }
