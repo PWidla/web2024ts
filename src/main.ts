@@ -7,10 +7,16 @@ const storyCreateForm = document.getElementById("story-form-container");
 const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
-const storyNameInput = document.getElementById("story-name");
-const storyDescriptionInput = document.getElementById("story-description");
-const storyPriorityInput = document.getElementById("priority");
-const storyStatusInput = document.getElementById("status");
+const storyNameInput = document.getElementById(
+  "story-name"
+) as HTMLInputElement;
+const storyDescriptionInput = document.getElementById(
+  "story-description"
+) as HTMLInputElement;
+const storyPriorityInput = document.getElementById(
+  "priority"
+) as HTMLSelectElement;
+const storyStatusInput = document.getElementById("status") as HTMLSelectElement;
 
 const storiesKeyIdentifier = "stories-";
 let loggedUser: User | null = null;
@@ -206,12 +212,10 @@ function toggleClasses(): void {
 //stories
 
 function getStoriesFormData() {
-  const name: string = (storyNameInput as HTMLInputElement).value.trim();
-  const description: string = (
-    storyDescriptionInput as HTMLInputElement
-  ).value.trim();
-  const priority: string = (storyPriorityInput as HTMLInputElement).value;
-  const status: string = (storyStatusInput as HTMLInputElement).value;
+  const name: string = storyNameInput.value.trim();
+  const description: string = storyDescriptionInput.value.trim();
+  const priority: string = storyPriorityInput.value;
+  const status: string = storyStatusInput.value;
   return { name, description, priority, status };
 }
 
@@ -307,39 +311,22 @@ function markStoryOut(storyDiv: HTMLDivElement): void {
 }
 
 function updateStory(
-  story: Project,
+  story: Story,
   storyDiv: HTMLDivElement,
   storySpan: HTMLSpanElement
 ) {
   storySpan.classList.add("beingUpdated");
 
-  let labelForname = document.createElement("label");
-  labelForname.setAttribute("for", "inputname");
-  var labelFornameText = document.createTextNode("name");
-  labelForname.appendChild(labelFornameText);
-  let inputForname = document.createElement("input");
-  inputForname.setAttribute("type", "text");
-  inputForname.placeholder = story.name;
-
-  let labelFordescription = document.createElement("label");
-  labelFordescription.setAttribute("for", "inputdescription");
-  var labelFordescriptionText = document.createTextNode("description");
-  labelFordescription.appendChild(labelFordescriptionText);
-  let inputFordescription = document.createElement("input");
-  inputFordescription.setAttribute("type", "text");
-  inputFordescription.placeholder = story.description;
+  storyNameInput!.value = story.name;
+  storyDescriptionInput!.value = story.description;
+  storyPriorityInput!.value = story.priority;
+  storyStatusInput!.value = story.status;
 
   let saveUpdatedProjectBtn = document.createElement("button");
   saveUpdatedProjectBtn.innerText = "Save";
   // saveUpdatedProjectBtn.addEventListener("click", () =>
   //   handleSaveUpdatedStory(story, inputForname.value, inputFordescription.value)
   // );
-
-  storyDiv.append(labelForname);
-  storyDiv.append(inputForname);
-  storyDiv.append(labelFordescription);
-  storyDiv.append(inputFordescription);
-  storyDiv.append(saveUpdatedProjectBtn);
 }
 
 function handleDeleteStoryClick(storyId: string) {
