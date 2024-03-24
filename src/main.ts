@@ -8,7 +8,7 @@ const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
 
-const storiesKeyIdentifier = "stories-project";
+const storiesKeyIdentifier = "stories-project-";
 let loggedUser: User | null = null;
 let chosenProject: Project | null = null;
 
@@ -125,7 +125,6 @@ function showProjects(): void {
 }
 
 function showSingleProject(project: Project): void {
-  console.log(project);
   let projectDiv = document.createElement("div");
   let projectSpan = document.createElement("span");
   let deleteProjectBtn = document.createElement("button");
@@ -180,7 +179,7 @@ function handleChooseProjectBtn(projectId: string) {
 
 function chooseProject(projectId: string) {
   chosenProject = getProject(projectId);
-  localStorage.setItem("chosenProject", JSON.stringify(chosenProject));
+  localStorage.setItem("chosenProject", JSON.stringify(chosenProject?.id));
   toggleClasses();
 }
 
@@ -248,7 +247,7 @@ function createStory(
   priority: Priority,
   status: Status
 ) {
-  const id = self.crypto.randomUUID();
+  const id = storiesKeyIdentifier + self.crypto.randomUUID();
   const project = chosenProject;
   const createdDate = new Date();
   const owner = loggedUser;
@@ -267,35 +266,40 @@ function createStory(
 }
 
 function showStories(): void {
-  const key = storiesKeyIdentifier + chosenProject!.id;
+  const storedChosenProject = JSON.parse(
+    localStorage.getItem("chosenProject") || "null"
+  );
+  const key = storiesKeyIdentifier + storedChosenProject!.id;
   const stories = JSON.parse(localStorage.getItem(key) || "null");
 
   storiesContainer!.innerHTML = "";
-  stories.forEach((story: Story) => {
-    let storyDiv = document.createElement("div");
-    let storySpan = document.createElement("span");
-    let deleteStoryBtn = document.createElement("button");
-    let updateStoryBtn = document.createElement("button");
+  if (stories) {
+    stories.forEach((story: Story) => {
+      let storyDiv = document.createElement("div");
+      let storySpan = document.createElement("span");
+      let deleteStoryBtn = document.createElement("button");
+      let updateStoryBtn = document.createElement("button");
 
-    storySpan.innerHTML = `Name: ${story.name}, Description: ${story.description}, Priority: ${story.priority}, Created Date: ${story.createdDate}, Status: ${story.status}, Owner: ${story.owner}`;
+      storySpan.innerHTML = `Name: ${story.name}, Description: ${story.description}, Priority: ${story.priority}, Created Date: ${story.createdDate}, Status: ${story.status}, Owner: ${story.owner}`;
 
-    deleteStoryBtn.classList.add("story-button");
-    deleteStoryBtn.innerText = "Delete";
-    deleteStoryBtn.addEventListener("click", () =>
-      handleDeleteStoryClick(story.id)
-    );
+      deleteStoryBtn.classList.add("story-button");
+      deleteStoryBtn.innerText = "Delete";
+      deleteStoryBtn.addEventListener("click", () =>
+        handleDeleteStoryClick(story.id)
+      );
 
-    // updateStoryBtn.classList.add("story-button");
-    // updateStoryBtn.innerText = "Update";
-    // updateStoryBtn.addEventListener("click", () =>
-    //   updateStory(story, storyDiv, storySpan)
-    // );
+      // updateStoryBtn.classList.add("story-button");
+      // updateStoryBtn.innerText = "Update";
+      // updateStoryBtn.addEventListener("click", () =>
+      //   updateStory(story, storyDiv, storySpan)
+      // );
 
-    storyDiv.appendChild(storySpan);
-    storyDiv.appendChild(deleteStoryBtn);
-    storyDiv.appendChild(updateStoryBtn);
-    storiesContainer!.appendChild(storyDiv);
-  });
+      storyDiv.appendChild(storySpan);
+      storyDiv.appendChild(deleteStoryBtn);
+      storyDiv.appendChild(updateStoryBtn);
+      storiesContainer!.appendChild(storyDiv);
+    });
+  }
 }
 
 function handleDeleteStoryClick(storyId: string) {
@@ -394,13 +398,13 @@ function getUser(firstName: string, lastName: string): User | null {
 }
 
 function getProject(projectId: string): Project | null {
-  const projectString = localStorage.getItem(`project-${projectId}`);
+  const projectString = localStorage.getItem(`${projectId}`);
   if (projectString) {
     const projectData = JSON.parse(projectString);
     return {
-      id: projectData.Id,
-      name: projectData.Name,
-      description: projectData.Description,
+      id: projectData.id,
+      name: projectData.name,
+      description: projectData.description,
     };
   }
   return null;
@@ -410,7 +414,6 @@ function mockLoggedUser(): void {
   createUser("mock", "mockowski");
   const user = getUser("mock", "mockowski");
   user!.login();
-  console.log(loggedUser);
 }
 
 mockLoggedUser();
