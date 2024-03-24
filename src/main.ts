@@ -3,6 +3,7 @@ const projectCreateForm = document.getElementById("project-create-form");
 const projectsContainer = document.getElementById("projects-container");
 const projectFormContainer = document.getElementById("project-form-container");
 const projectsH3 = document.getElementById("projects-h3");
+const storyCreateForm = document.getElementById("story-form-container");
 const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
@@ -14,6 +15,11 @@ let chosenProject: Project | null = null;
 projectCreateForm!.addEventListener("submit", function (e) {
   e.preventDefault();
   onNewProject(e);
+});
+
+storyCreateForm!.addEventListener("submit", function (e) {
+  e.preventDefault();
+  onNewStory(e);
 });
 
 type Project = {
@@ -98,7 +104,7 @@ function saveProject(project: Project) {
 }
 
 function createProject(name: string, description: string): Project {
-  const id = self.crypto.randomUUID();
+  const id = "project-" + self.crypto.randomUUID();
   return {
     id,
     name,
@@ -109,14 +115,17 @@ function createProject(name: string, description: string): Project {
 function showProjects(): void {
   projectsContainer!.innerHTML = "";
   for (const key of Object.keys(localStorage)) {
-    const item = JSON.parse(localStorage.getItem(key) || "null");
-    if (item) {
-      showSingleProject(item);
+    if (key.startsWith("project")) {
+      const item = JSON.parse(localStorage.getItem(key) || "null");
+      if (item) {
+        showSingleProject(item);
+      }
     }
   }
 }
 
 function showSingleProject(project: Project): void {
+  console.log(project);
   let projectDiv = document.createElement("div");
   let projectSpan = document.createElement("span");
   let deleteProjectBtn = document.createElement("button");
@@ -209,7 +218,6 @@ function getStoriesFormData() {
 }
 
 function onNewStory(e: Event) {
-  e.preventDefault();
   const { name, description, priority, status } = getStoriesFormData();
 
   if (!name || !description || !priority || !status) {
@@ -227,8 +235,11 @@ function onNewStory(e: Event) {
   showStories();
 }
 
-function saveStory(project: Project) {
-  localStorage.setItem(project.id, JSON.stringify(project));
+function saveStory(story: Story) {
+  const key = storiesKeyIdentifier + chosenProject!.id;
+  localStorage.getItem(key);
+
+  localStorage.setItem(story.id, JSON.stringify(story));
 }
 
 function createStory(
