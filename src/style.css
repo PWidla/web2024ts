@@ -27,6 +27,7 @@
   flex-direction: column;
 }
 
+#story-save-button,
 .project-button,
 .story-button {
   display: none;

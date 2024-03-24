@@ -324,9 +324,27 @@ function updateStory(
 
   let saveUpdatedProjectBtn = document.createElement("button");
   saveUpdatedProjectBtn.innerText = "Save";
-  // saveUpdatedProjectBtn.addEventListener("click", () =>
-  //   handleSaveUpdatedStory(story, inputForname.value, inputFordescription.value)
-  // );
+  saveUpdatedProjectBtn.addEventListener("click", () =>
+    handleSaveUpdatedStory(story)
+  );
+  storyDiv.appendChild(saveUpdatedProjectBtn);
+}
+
+function handleSaveUpdatedStory(story: Story): void {
+  let updatedStoryInput = getStoriesFormData();
+  story.name = updatedStoryInput.name;
+  story.description = updatedStoryInput.description;
+  story.priority = updatedStoryInput.priority as Priority;
+  story.status = updatedStoryInput.status as Status;
+
+  const key = storiesKeyIdentifier + chosenProject!.id;
+  const storiesString = localStorage.getItem(key);
+  const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+  let newStories = stories.filter(({ id }) => id !== story.id);
+  newStories.push(story);
+
+  localStorage.setItem(key, JSON.stringify(newStories));
+  showStories();
 }
 
 function handleDeleteStoryClick(storyId: string) {
