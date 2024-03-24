@@ -9,7 +9,7 @@ const storiesH3 = document.getElementById("stories-h3");
 
 const storiesKeyIdentifier = "stories-project";
 let loggedUser: User | null = null;
-let chosenProjectId: string | null = null;
+let chosenProject: Project | null = null;
 
 projectCreateForm!.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -27,7 +27,7 @@ type Story = {
   name: string;
   description: string;
   priority: Priority;
-  projectId: string;
+  project: Project;
   createdDate: Date;
   status: Status;
   owner: User;
@@ -170,8 +170,8 @@ function handleChooseProjectBtn(projectId: string) {
 }
 
 function chooseProject(projectId: string) {
-  chosenProjectId = projectId;
-  localStorage.setItem("chosenProjectId", projectId);
+  chosenProject = getProject(projectId);
+  localStorage.setItem("chosenProject", JSON.stringify(chosenProject));
   toggleClasses();
 }
 
@@ -223,7 +223,7 @@ function onNewStory(e: Event) {
     priority as Priority,
     status as Status
   );
-  saveStory(story);
+  saveStory(story as Story);
   showStories();
 }
 
@@ -236,19 +236,19 @@ function createStory(
   description: string,
   priority: Priority,
   status: Status
-): Story {
+) {
   const id = self.crypto.randomUUID();
-  const projectId = chosenProjectId;
+  const project = chosenProject;
   const createdDate = new Date();
   const owner = loggedUser;
 
-  if (projectId && owner)
+  if (project && owner)
     return {
       id,
       name,
       description,
       priority,
-      projectId,
+      project,
       createdDate,
       status,
       owner,
@@ -256,7 +256,7 @@ function createStory(
 }
 
 function showStories(): void {
-  const key = storiesKeyIdentifier + chosenProjectId;
+  const key = storiesKeyIdentifier + chosenProject!.id;
   const stories = JSON.parse(localStorage.getItem(key) || "null");
 
   storiesContainer!.innerHTML = "";
@@ -378,6 +378,19 @@ function getUser(firstName: string, lastName: string): User | null {
   if (userString) {
     const userData = JSON.parse(userString);
     return new User(userData.id, userData.firstName, userData.lastName);
+  }
+  return null;
+}
+
+function getProject(projectId: string): Project | null {
+  const projectString = localStorage.getItem(`project-${projectId}`);
+  if (projectString) {
+    const projectData = JSON.parse(projectString);
+    return {
+      id: projectData.Id,
+      name: projectData.Name,
+      description: projectData.Description,
+    };
   }
   return null;
 }
