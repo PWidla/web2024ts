@@ -237,8 +237,7 @@ function onNewStory(e: Event) {
 function saveStory(story: Story) {
   const key = storiesKeyIdentifier + chosenProject!.id;
   localStorage.getItem(key);
-
-  localStorage.setItem(story.id, JSON.stringify(story));
+  localStorage.setItem(key, JSON.stringify(story));
 }
 
 function createStory(
@@ -270,37 +269,35 @@ function showStories(): void {
     localStorage.getItem("chosenProject") || "null"
   );
   const key = storiesKeyIdentifier + storedChosenProject!.id;
-  console.log("key " + key);
-  const stories = JSON.parse(localStorage.getItem(key) || "null");
+  const storiesString = localStorage.getItem(key);
+  const stories = storiesString ? [JSON.parse(storiesString)] : [];
 
   storiesContainer!.innerHTML = "";
-  if (stories) {
-    stories.forEach((story: Story) => {
-      let storyDiv = document.createElement("div");
-      let storySpan = document.createElement("span");
-      let deleteStoryBtn = document.createElement("button");
-      let updateStoryBtn = document.createElement("button");
+  stories.forEach((story: Story) => {
+    let storyDiv = document.createElement("div");
+    let storySpan = document.createElement("span");
+    let deleteStoryBtn = document.createElement("button");
+    let updateStoryBtn = document.createElement("button");
 
-      storySpan.innerHTML = `Name: ${story.name}, Description: ${story.description}, Priority: ${story.priority}, Created Date: ${story.createdDate}, Status: ${story.status}, Owner: ${story.owner}`;
+    storySpan.innerHTML = `Name: ${story.name}, Description: ${story.description}, Priority: ${story.priority}, Created Date: ${story.createdDate}, Status: ${story.status}, Owner: ${story.owner}`;
 
-      deleteStoryBtn.classList.add("story-button");
-      deleteStoryBtn.innerText = "Delete";
-      deleteStoryBtn.addEventListener("click", () =>
-        handleDeleteStoryClick(story.id)
-      );
+    deleteStoryBtn.classList.add("story-button");
+    deleteStoryBtn.innerText = "Delete";
+    deleteStoryBtn.addEventListener("click", () =>
+      handleDeleteStoryClick(story.id)
+    );
 
-      // updateStoryBtn.classList.add("story-button");
-      // updateStoryBtn.innerText = "Update";
-      // updateStoryBtn.addEventListener("click", () =>
-      //   updateStory(story, storyDiv, storySpan)
-      // );
+    // updateStoryBtn.classList.add("story-button");
+    // updateStoryBtn.innerText = "Update";
+    // updateStoryBtn.addEventListener("click", () =>
+    //   updateStory(story, storyDiv, storySpan)
+    // );
 
-      storyDiv.appendChild(storySpan);
-      storyDiv.appendChild(deleteStoryBtn);
-      storyDiv.appendChild(updateStoryBtn);
-      storiesContainer!.appendChild(storyDiv);
-    });
-  }
+    storyDiv.appendChild(storySpan);
+    storyDiv.appendChild(deleteStoryBtn);
+    storyDiv.appendChild(updateStoryBtn);
+    storiesContainer!.appendChild(storyDiv);
+  });
 }
 
 function handleDeleteStoryClick(storyId: string) {
