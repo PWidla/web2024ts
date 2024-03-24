@@ -27,7 +27,8 @@
   flex-direction: column;
 }
 
-.project-button {
+.project-button,
+.story-button {
   display: none;
 }
 
