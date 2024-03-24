@@ -8,7 +8,7 @@ const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
 
-const storiesKeyIdentifier = "stories-project-";
+const storiesKeyIdentifier = "stories-";
 let loggedUser: User | null = null;
 let chosenProject: Project | null = null;
 
