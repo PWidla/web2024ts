@@ -179,7 +179,7 @@ function handleChooseProjectBtn(projectId: string) {
 
 function chooseProject(projectId: string) {
   chosenProject = getProject(projectId);
-  localStorage.setItem("chosenProject", JSON.stringify(chosenProject?.id));
+  localStorage.setItem("chosenProject", JSON.stringify(chosenProject));
   toggleClasses();
 }
 
@@ -270,6 +270,7 @@ function showStories(): void {
     localStorage.getItem("chosenProject") || "null"
   );
   const key = storiesKeyIdentifier + storedChosenProject!.id;
+  console.log("key " + key);
   const stories = JSON.parse(localStorage.getItem(key) || "null");
 
   storiesContainer!.innerHTML = "";
