@@ -353,8 +353,15 @@ function handleDeleteStoryClick(storyId: string) {
 }
 
 function deleteStory(storyId: string) {
-  localStorage.removeItem(storyId);
-  showProjects();
+  const projectStoriesKey = "stories-" + chosenProject!.id;
+  console.log(projectStoriesKey);
+  console.log(localStorage);
+  const storiesString = localStorage.getItem(projectStoriesKey);
+  const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+  let newStories = stories.filter(({ id }) => id !== storyId);
+
+  localStorage.setItem(projectStoriesKey, JSON.stringify(newStories));
+  showStories();
 }
 
 function updateProject(
