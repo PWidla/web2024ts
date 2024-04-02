@@ -7,6 +7,9 @@ const storyCreateForm = document.getElementById("story-form-container");
 const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
+const storyDropdown = document.getElementById(
+  "story-dropdown"
+) as HTMLSelectElement;
 const storyNameInput = document.getElementById(
   "story-name"
 ) as HTMLInputElement;
@@ -205,6 +208,7 @@ function toggleClasses(): void {
   storyFormContainer!.classList.toggle("form-container");
   storiesContainer!.classList.toggle("entity-container");
   storiesH3!.classList.toggle("hidden-element");
+  storyDropdown!.classList.toggle("hidden-element");
   storyFormContainer!.classList.toggle("hidden-element");
   storiesContainer!.classList.toggle("hidden-element");
 }
@@ -276,7 +280,14 @@ function showStories(): void {
   );
   const key = storiesKeyIdentifier + storedChosenProject!.id;
   const storiesString = localStorage.getItem(key);
-  const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+  const allStories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+  const selectedStatus = storyDropdown!.value;
+  let stories: Story[];
+  if (selectedStatus == "All") {
+    stories = allStories;
+  } else {
+    stories = allStories.filter((s) => s.status == selectedStatus);
+  }
   storiesContainer!.innerHTML = "";
 
   stories.forEach((story: Story) => {
@@ -467,6 +478,8 @@ function mockLoggedUser(): void {
   const user = getUser("mock", "mockowski");
   user!.login();
 }
+
+storyDropdown.addEventListener("change", showStories);
 
 mockLoggedUser();
 showProjects();

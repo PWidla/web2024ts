@@ -56,7 +56,15 @@
           <input type="submit" value="Submit" id="submit-btn" />
         </form>
       </div>
-      <h3 id="stories-h3" class="hidden-element">Stories:</h3>
+      <div id="storiesContainerHeader">
+        <h3 id="stories-h3" class="hidden-element">Stories:</h3>
+        <select id="story-dropdown" class="hidden-element">
+          <option value="All">All</option>
+          <option value="ToDo">ToDo</option>
+          <option value="Doing">Doing</option>
+          <option value="Done">Done</option>
+        </select>
+      </div>
       <div id="stories-container" class="hidden-element"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
