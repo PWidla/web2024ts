@@ -4,6 +4,7 @@ const projectsContainer = document.getElementById("projects-container");
 const projectFormContainer = document.getElementById("project-form-container");
 const projectsH3 = document.getElementById("projects-h3");
 const storyCreateForm = document.getElementById("story-form-container");
+const showTasksBtn = document.getElementById("showTasksBtn");
 const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
@@ -201,24 +202,96 @@ function handleChooseProjectBtn(projectId: string) {
 function chooseProject(projectId: string) {
   chosenProject = getProject(projectId);
   localStorage.setItem("chosenProject", JSON.stringify(chosenProject));
-  toggleClasses();
+  toggleStories();
+  toggleProjects();
 }
 
-function toggleClasses(): void {
+function toggleProjects(): void {
   projectsH3!.classList.toggle("h3-element");
   projectFormContainer!.classList.toggle("form-container");
   projectsContainer!.classList.toggle("entity-container");
   projectsH3!.classList.toggle("hidden-element");
   projectFormContainer!.classList.toggle("hidden-element");
   projectsContainer!.classList.toggle("hidden-element");
+}
 
-  storiesH3!.classList.toggle("h3-element");
-  storyFormContainer!.classList.toggle("form-container");
-  storiesContainer!.classList.toggle("entity-container");
-  storiesH3!.classList.toggle("hidden-element");
-  storyDropdown!.classList.toggle("hidden-element");
-  storyFormContainer!.classList.toggle("hidden-element");
-  storiesContainer!.classList.toggle("hidden-element");
+function updateProject(
+  project: Project,
+  projectDiv: HTMLDivElement,
+  projectSpan: HTMLSpanElement
+) {
+  projectSpan.classList.add("beingUpdated");
+
+  let labelForname = document.createElement("label");
+  labelForname.setAttribute("for", "inputname");
+  var labelFornameText = document.createTextNode("name");
+  labelForname.appendChild(labelFornameText);
+  let inputForname = document.createElement("input");
+  inputForname.setAttribute("type", "text");
+  inputForname.placeholder = project.name;
+
+  let labelFordescription = document.createElement("label");
+  labelFordescription.setAttribute("for", "inputdescription");
+  var labelFordescriptionText = document.createTextNode("description");
+  labelFordescription.appendChild(labelFordescriptionText);
+  let inputFordescription = document.createElement("input");
+  inputFordescription.setAttribute("type", "text");
+  inputFordescription.placeholder = project.description;
+
+  let saveUpdatedProjectBtn = document.createElement("button");
+  saveUpdatedProjectBtn.innerText = "Save";
+  saveUpdatedProjectBtn.addEventListener("click", () =>
+    handleSaveUpdatedProject(
+      project,
+      inputForname.value,
+      inputFordescription.value
+    )
+  );
+
+  projectDiv.append(labelForname);
+  projectDiv.append(inputForname);
+  projectDiv.append(labelFordescription);
+  projectDiv.append(inputFordescription);
+  projectDiv.append(saveUpdatedProjectBtn);
+}
+
+function handleSaveUpdatedProject(
+  project: Project,
+  name: string,
+  description: string
+) {
+  saveUpdatedProject(project, name, description);
+  showProjects();
+}
+
+function saveUpdatedProject(
+  project: Project,
+  name: string,
+  description: string
+) {
+  let retrievedProject: Project | null = null;
+  const storedProject = localStorage.getItem(project.id);
+
+  if (storedProject) {
+    retrievedProject = JSON.parse(storedProject);
+  }
+  retrievedProject!.name = name;
+  retrievedProject!.description = description;
+
+  localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
+}
+
+function getProject(projectId: string): Project | null {
+  const projectString = localStorage.getItem(`${projectId}`);
+  if (projectString) {
+    const projectData = JSON.parse(projectString);
+    return {
+      id: projectData.id,
+      name: projectData.name,
+      description: projectData.description,
+    };
+  }
+  return null;
 }
 
 //stories
@@ -383,72 +456,18 @@ function deleteStory(storyId: string) {
   showStories();
 }
 
-function updateProject(
-  project: Project,
-  projectDiv: HTMLDivElement,
-  projectSpan: HTMLSpanElement
-) {
-  projectSpan.classList.add("beingUpdated");
-
-  let labelForname = document.createElement("label");
-  labelForname.setAttribute("for", "inputname");
-  var labelFornameText = document.createTextNode("name");
-  labelForname.appendChild(labelFornameText);
-  let inputForname = document.createElement("input");
-  inputForname.setAttribute("type", "text");
-  inputForname.placeholder = project.name;
-
-  let labelFordescription = document.createElement("label");
-  labelFordescription.setAttribute("for", "inputdescription");
-  var labelFordescriptionText = document.createTextNode("description");
-  labelFordescription.appendChild(labelFordescriptionText);
-  let inputFordescription = document.createElement("input");
-  inputFordescription.setAttribute("type", "text");
-  inputFordescription.placeholder = project.description;
-
-  let saveUpdatedProjectBtn = document.createElement("button");
-  saveUpdatedProjectBtn.innerText = "Save";
-  saveUpdatedProjectBtn.addEventListener("click", () =>
-    handleSaveUpdatedProject(
-      project,
-      inputForname.value,
-      inputFordescription.value
-    )
-  );
-
-  projectDiv.append(labelForname);
-  projectDiv.append(inputForname);
-  projectDiv.append(labelFordescription);
-  projectDiv.append(inputFordescription);
-  projectDiv.append(saveUpdatedProjectBtn);
+function toggleStories(): void {
+  storiesH3!.classList.toggle("h3-element");
+  storyFormContainer!.classList.toggle("form-container");
+  storiesContainer!.classList.toggle("entity-container");
+  storiesH3!.classList.toggle("hidden-element");
+  storyDropdown!.classList.toggle("hidden-element");
+  storyFormContainer!.classList.toggle("hidden-element");
+  storiesContainer!.classList.toggle("hidden-element");
+  showTasksBtn!.classList.toggle("hidden-element");
 }
 
-function handleSaveUpdatedProject(
-  project: Project,
-  name: string,
-  description: string
-) {
-  saveUpdatedProject(project, name, description);
-  showProjects();
-}
-
-function saveUpdatedProject(
-  project: Project,
-  name: string,
-  description: string
-) {
-  let retrievedProject: Project | null = null;
-  const storedProject = localStorage.getItem(project.id);
-
-  if (storedProject) {
-    retrievedProject = JSON.parse(storedProject);
-  }
-  retrievedProject!.name = name;
-  retrievedProject!.description = description;
-
-  localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
-}
-
+//users
 function createUser(firstName: string, lastName: string, role: Role): void {
   const user = localStorage.getItem(`user-${firstName}${lastName}`);
   if (!user) {
@@ -469,19 +488,6 @@ function getUser(firstName: string, lastName: string): User | null {
       userData.lastName,
       userData.Role
     );
-  }
-  return null;
-}
-
-function getProject(projectId: string): Project | null {
-  const projectString = localStorage.getItem(`${projectId}`);
-  if (projectString) {
-    const projectData = JSON.parse(projectString);
-    return {
-      id: projectData.id,
-      name: projectData.name,
-      description: projectData.description,
-    };
   }
   return null;
 }
