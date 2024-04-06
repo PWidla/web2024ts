@@ -64,17 +64,25 @@ enum Status {
   Done = "Done",
 }
 
+enum Role {
+  Admin = "Admin",
+  DevOps = "DevOps",
+  Developer = "Developer",
+}
+
 class User {
   id: string;
   firstName: string;
   lastName: string;
   loggedIn: boolean;
+  role: Role;
 
-  constructor(id: string, firstName: string, lastName: string) {
+  constructor(id: string, firstName: string, lastName: string, role: Role) {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;
     this.loggedIn = false;
+    this.role = role;
   }
 
   login(): void {
@@ -441,10 +449,10 @@ function saveUpdatedProject(
   localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
 }
 
-function createUser(firstName: string, lastName: string): void {
+function createUser(firstName: string, lastName: string, role: Role): void {
   const user = localStorage.getItem(`user-${firstName}${lastName}`);
   if (!user) {
-    const user = new User(self.crypto.randomUUID(), firstName, lastName);
+    const user = new User(self.crypto.randomUUID(), firstName, lastName, role);
     localStorage.setItem(`user-${firstName}${lastName}`, JSON.stringify(user));
     return;
   }
@@ -455,7 +463,12 @@ function getUser(firstName: string, lastName: string): User | null {
   const userString = localStorage.getItem(`user-${firstName}${lastName}`);
   if (userString) {
     const userData = JSON.parse(userString);
-    return new User(userData.id, userData.firstName, userData.lastName);
+    return new User(
+      userData.id,
+      userData.firstName,
+      userData.lastName,
+      userData.Role
+    );
   }
   return null;
 }
@@ -474,8 +487,10 @@ function getProject(projectId: string): Project | null {
 }
 
 function mockLoggedUser(): void {
-  createUser("mock", "mockowski");
-  const user = getUser("mock", "mockowski");
+  createUser("AdminFirstName", "AdminLastName", Role.Admin);
+  createUser("DevOpsFirstName", "DevOpsLastName", Role.DevOps);
+  createUser("DeveloperFirstName", "DeveloperLastName", Role.Developer);
+  const user = getUser("AdminFirstName", "AdminLastName");
   user!.login();
 }
 
