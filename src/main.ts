@@ -102,7 +102,6 @@ type TodoTask = {
   estimatedFinishDate: Date;
   status: Status;
   createdDate: Date;
-  assignee: User | null;
 };
 
 type DoingTask = {
@@ -115,7 +114,7 @@ type DoingTask = {
   status: Status;
   createdDate: Date;
   startedDate: Date;
-  assignee: User;
+  assigneeId: string;
 };
 
 type DoneTask = {
@@ -129,7 +128,7 @@ type DoneTask = {
   createdDate: Date;
   startedDate: Date;
   finishedDate: Date;
-  assignee: User;
+  assigneeId: string;
 };
 
 enum Priority {
@@ -530,8 +529,6 @@ function handleDeleteStoryClick(storyId: string) {
 
 function deleteStory(storyId: string) {
   const projectStoriesKey = "stories-" + chosenProject!.id;
-  console.log(projectStoriesKey);
-  console.log(localStorage);
   const storiesString = localStorage.getItem(projectStoriesKey);
   const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
   let newStories = stories.filter(({ id }) => id !== storyId);
@@ -623,13 +620,16 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
     let singleTaskPriority = document.createElement("span");
     singleTaskPriority.innerHTML = `Task Priority: ${task.priority}`;
 
-    let singleTaskStoryId = document.createElement("span");
-    singleTaskStoryId.innerHTML = `Story ID: ${task.storyId}`;
+    const storyName = getStoryName(task.storyId);
+    let singleTaskStory = document.createElement("span");
+    singleTaskStory.innerHTML = `Story: ${storyName}`;
 
     let singleTaskEstimatedFinish = document.createElement("span");
     singleTaskEstimatedFinish.innerHTML = `Estimated Finish: ${new Date(
       task.estimatedFinishDate
-    ).toISOString()}`;
+    )
+      .toISOString()
+      .slice(0, 10)}`;
 
     let singleTaskStatus = document.createElement("span");
     singleTaskStatus.innerHTML = `Task Status: ${task.status}`;
@@ -637,21 +637,49 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
     let singleTaskCreatedDate = document.createElement("span");
     singleTaskCreatedDate.innerHTML = `Created Date: ${new Date(
       task.createdDate
-    ).toISOString()}`;
+    )
+      .toISOString()
+      .slice(0, 10)}`;
 
-    let singleTaskAssignee = document.createElement("span");
-    singleTaskAssignee.innerHTML = `Task Assignee: ${
-      task.assignee ? task.assignee : "no one"
-    }`;
+    let assigneeLabel = document.createElement("label");
+    assigneeLabel.innerHTML = "Assignee:";
+    assigneeLabel.id = "assigneeSelectLabel";
+    assigneeLabel.setAttribute("for", "assigneeSelect");
+
+    let assigneeSelect = document.createElement("select");
+    assigneeSelect.id = "assigneeSelect";
+    const assignees: User[] = getAssignees();
+    console.log(assignees);
+    assignees.forEach((assignee) => {
+      let assigneeOption = document.createElement("option");
+      console.log("assignee.id: " + assignee.id);
+
+      assigneeOption.value = assignee.id;
+      assigneeOption.text = `${assignee.firstName} ${assignee.lastName}`;
+      assigneeSelect.appendChild(assigneeOption);
+    });
+
+    let saveTaskBtn = document.createElement("button");
+    saveTaskBtn.id = "saveTaskBtn";
+    saveTaskBtn.innerHTML = "Save";
+    saveTaskBtn.addEventListener("click", function () {
+      const updatedTask = updateTaskToDoing(task);
+      if (updatedTask) {
+        saveTask(updatedTask);
+      }
+    });
 
     modalContentDiv.appendChild(singleTaskName);
     modalContentDiv.appendChild(singleTaskDescription);
     modalContentDiv.appendChild(singleTaskPriority);
-    modalContentDiv.appendChild(singleTaskStoryId);
+    modalContentDiv.appendChild(singleTaskStory);
     modalContentDiv.appendChild(singleTaskEstimatedFinish);
     modalContentDiv.appendChild(singleTaskStatus);
     modalContentDiv.appendChild(singleTaskCreatedDate);
-    modalContentDiv.appendChild(singleTaskAssignee);
+    modalContentDiv.appendChild(saveTaskBtn);
+    modalContentDiv.appendChild(assigneeLabel);
+    modalContentDiv.appendChild(assigneeSelect);
+    modalContentDiv.appendChild(saveTaskBtn);
 
     taskModalDiv!.style.display = "block";
     modalContentDiv.classList.remove("hidden-element");
@@ -663,6 +691,24 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
       closeModalBtn!.classList.add("hidden-element");
     });
   }
+}
+
+function getStoryName(storyId: string): string {
+  const key = storiesKeyIdentifier + chosenProject!.id;
+  const storiesString = localStorage.getItem(key);
+  const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+  const story: Story | undefined = stories.find(
+    (story) => story.id === storyId
+  );
+  return story!.name;
+}
+
+function getAssignees(): User[] {
+  return Object.keys(localStorage)
+    .filter(
+      (key) => key.startsWith("user-DevOps") || key.startsWith("user-Developer")
+    )
+    .map((key) => JSON.parse(localStorage[key]));
 }
 
 function onNewTask(e: Event) {
@@ -706,12 +752,33 @@ function createTask(
       estimatedFinishDate: new Date(estimatedFinishDate),
       status: Status.ToDo,
       createdDate,
-      assignee: null,
     };
   throw new Error("Unable to create story.");
 }
 
-function saveTask(task: TodoTask) {
+function updateTaskToDoing(task: TodoTask): DoingTask | null {
+  const selectedAssignee = document.getElementById(
+    "assigneeSelect"
+  ) as HTMLSelectElement | null;
+  console.log(selectedAssignee);
+  console.log(selectedAssignee!.value);
+
+  if (!selectedAssignee!.value) {
+    alert("Choose assignee");
+    return null;
+  }
+
+  const doingTask: DoingTask = {
+    ...task,
+    startedDate: new Date(),
+    status: Status.Doing,
+    assigneeId: selectedAssignee!.value,
+  };
+
+  return doingTask;
+}
+
+function saveTask(task: TodoTask | DoingTask | DoneTask) {
   localStorage.setItem(task.id, JSON.stringify(task));
   showTasks();
 }
