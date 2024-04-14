@@ -569,6 +569,10 @@ function handleShowTasksBtn() {
 }
 
 function showTasks() {
+  todoTasksContainer!.innerHTML = "";
+  doingTasksContainer!.innerHTML = "";
+  doneTasksContainer!.innerHTML = "";
+
   const tasks = Object.keys(localStorage)
     .filter((key) => key.startsWith("task"))
     .map((key) => JSON.parse(localStorage[key]));
