@@ -116,22 +116,32 @@
         <input type="submit" value="Submit" id="submit-btn" />
       </form>
     </div>
-    <input
-      type="button"
-      value="Show tasks"
-      class="hidden-element"
-      id="showTasksBtn"
-    />
+
     <div id="tasksContainerHeader">
       <h3 id="tasks-h3" class="hidden-element">Tasks:</h3>
-      <select id="task-dropdown" class="hidden-element">
+      <!-- <select id="task-dropdown" class="hidden-element">
         <option value="All">All</option>
         <option value="ToDo">ToDo</option>
         <option value="Doing">Doing</option>
         <option value="Done">Done</option>
-      </select>
+      </select> -->
     </div>
-    <div id="tasks-container" class="hidden-element"></div>
+    <div id="tasks-grid-container" class="hidden-element">
+      <div class="grid-item hidden-element" id="todo-tasks-container">
+        <h1>To do</h1>
+      </div>
+      <div class="grid-item hidden-element" id="doing-tasks-container">
+        <h1>Doing</h1>
+      </div>
+      <div class="grid-item hidden-element" id="done-tasks-container">
+        <h1>Done</h1>
+      </div>
+      <div id="task-modal">
+        <div id="modal-content" class="hidden-element">
+          <button id="close-modal-btn" class="hidden-element">X</button>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

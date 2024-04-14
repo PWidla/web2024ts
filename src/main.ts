@@ -27,7 +27,10 @@ const storyStatusInput = document.getElementById(
 ) as HTMLSelectElement;
 //tasks
 const taskCreateForm = document.getElementById("task-form-container");
-const tasksContainer = document.getElementById("tasks-container");
+const tasksContainer = document.getElementById("tasks-grid-container");
+const todoTasksContainer = document.getElementById("todo-tasks-container");
+const doingTasksContainer = document.getElementById("doing-tasks-container");
+const doneTasksContainer = document.getElementById("done-tasks-container");
 const taskFormContainer = document.getElementById("task-form-container");
 const tasksH3 = document.getElementById("tasks-h3");
 const taskDropdown = document.getElementById(
@@ -49,6 +52,9 @@ const taskStoryInput = document.getElementById(
 const estimatedFinishDateInput = document.getElementById(
   "estimated-finish-date-picker"
 ) as HTMLInputElement;
+const taskModalDiv = document.getElementById("task-modal");
+const modalContentDiv = document.getElementById("modal-content");
+const closeModalBtn = document.getElementById("close-modal-btn");
 
 const storiesKeyIdentifier = "stories-";
 const tasksKeyIdentifier = "task-";
@@ -93,7 +99,7 @@ type TodoTask = {
   description: string;
   priority: Priority;
   storyId: string;
-  estimatedFinish: Date;
+  estimatedFinishDate: Date;
   status: Status;
   createdDate: Date;
   assignee: User | null;
@@ -105,7 +111,7 @@ type DoingTask = {
   description: string;
   priority: Priority;
   storyId: string;
-  estimatedFinish: Date;
+  estimatedFinishDate: Date;
   status: Status;
   createdDate: Date;
   startedDate: Date;
@@ -118,7 +124,7 @@ type DoneTask = {
   description: string;
   priority: Priority;
   storyId: string;
-  estimatedFinish: Date;
+  estimatedFinishDate: Date;
   status: Status;
   createdDate: Date;
   startedDate: Date;
@@ -549,8 +555,9 @@ function toggleStories(): void {
 function handleShowTasksBtn() {
   toggleStories();
   toggleTasks();
-  estimatedFinishDateInput.value = new Date().toISOString();
-  estimatedFinishDateInput.min = new Date().toISOString();
+  const currentDate = new Date().toISOString().slice(0, 10);
+  estimatedFinishDateInput.value = currentDate;
+  estimatedFinishDateInput.min = currentDate;
   estimatedFinishDateInput.max = "2035-01-01";
   const allStories = getStories();
   let openStories = allStories.filter((s) => s.status != Status.Done);
@@ -565,7 +572,97 @@ function handleShowTasksBtn() {
 }
 
 function showTasks() {
-  //todo
+  const tasks = Object.keys(localStorage)
+    .filter((key) => key.startsWith("task"))
+    .map((key) => JSON.parse(localStorage[key]));
+  console.log(tasks);
+
+  tasks.forEach((task) => {
+    let singleTaskDiv = document.createElement("div");
+
+    let singleTaskName = document.createElement("span");
+    singleTaskName.innerHTML = `Task name: ${task.name}`;
+
+    let singleTaskAssignee = document.createElement("span");
+    singleTaskAssignee.innerHTML = `Task assignee: ${
+      task.assignee || "no one"
+    }`;
+
+    singleTaskDiv.appendChild(singleTaskName);
+    singleTaskDiv.appendChild(singleTaskAssignee);
+    singleTaskDiv.classList.add("single-task");
+    singleTaskDiv.id = `task-div-${task.id}`;
+    singleTaskDiv.addEventListener("click", function (e) {
+      showModal(task);
+    });
+
+    switch (task.status) {
+      case "ToDo":
+        todoTasksContainer!.appendChild(singleTaskDiv);
+        break;
+      case "Doing":
+        doingTasksContainer!.appendChild(singleTaskDiv);
+        break;
+      case "Done":
+        doneTasksContainer!.appendChild(singleTaskDiv);
+        break;
+    }
+  });
+}
+
+function showModal(task: TodoTask | DoingTask | DoneTask) {
+  if (modalContentDiv) {
+    modalContentDiv.innerHTML = "";
+
+    let singleTaskName = document.createElement("span");
+    singleTaskName.innerHTML = `Task Name: ${task.name}`;
+
+    let singleTaskDescription = document.createElement("span");
+    singleTaskDescription.innerHTML = `Task Description: ${task.description}`;
+
+    let singleTaskPriority = document.createElement("span");
+    singleTaskPriority.innerHTML = `Task Priority: ${task.priority}`;
+
+    let singleTaskStoryId = document.createElement("span");
+    singleTaskStoryId.innerHTML = `Story ID: ${task.storyId}`;
+
+    let singleTaskEstimatedFinish = document.createElement("span");
+    singleTaskEstimatedFinish.innerHTML = `Estimated Finish: ${new Date(
+      task.estimatedFinishDate
+    ).toISOString()}`;
+
+    let singleTaskStatus = document.createElement("span");
+    singleTaskStatus.innerHTML = `Task Status: ${task.status}`;
+
+    let singleTaskCreatedDate = document.createElement("span");
+    singleTaskCreatedDate.innerHTML = `Created Date: ${new Date(
+      task.createdDate
+    ).toISOString()}`;
+
+    let singleTaskAssignee = document.createElement("span");
+    singleTaskAssignee.innerHTML = `Task Assignee: ${
+      task.assignee ? task.assignee : "no one"
+    }`;
+
+    modalContentDiv.appendChild(singleTaskName);
+    modalContentDiv.appendChild(singleTaskDescription);
+    modalContentDiv.appendChild(singleTaskPriority);
+    modalContentDiv.appendChild(singleTaskStoryId);
+    modalContentDiv.appendChild(singleTaskEstimatedFinish);
+    modalContentDiv.appendChild(singleTaskStatus);
+    modalContentDiv.appendChild(singleTaskCreatedDate);
+    modalContentDiv.appendChild(singleTaskAssignee);
+
+    taskModalDiv!.style.display = "block";
+    modalContentDiv.classList.remove("hidden-element");
+    closeModalBtn!.classList.remove("hidden-element");
+
+    closeModalBtn!.addEventListener("click", function (e) {
+      taskModalDiv!.style.display = "none";
+      modalContentDiv!.classList.add("hidden-element");
+      closeModalBtn!.classList.add("hidden-element");
+    });
+  }
 }
 
 function onNewTask(e: Event) {
@@ -606,7 +703,7 @@ function createTask(
       description,
       priority,
       storyId,
-      estimatedFinish: new Date(estimatedFinishDate),
+      estimatedFinishDate: new Date(estimatedFinishDate),
       status: Status.ToDo,
       createdDate,
       assignee: null,
@@ -634,7 +731,7 @@ function toggleTasks(): void {
   taskFormContainer!.classList.toggle("form-container");
   tasksContainer!.classList.toggle("entity-container");
   tasksH3!.classList.toggle("hidden-element");
-  taskDropdown!.classList.toggle("hidden-element");
+  // taskDropdown!.classList.toggle("hidden-element");
   taskFormContainer!.classList.toggle("hidden-element");
   tasksContainer!.classList.toggle("hidden-element");
 }
