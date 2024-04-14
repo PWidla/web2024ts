@@ -1,8 +1,10 @@
 const mainContainer = document.getElementById("main");
+//projects
 const projectCreateForm = document.getElementById("project-create-form");
 const projectsContainer = document.getElementById("projects-container");
 const projectFormContainer = document.getElementById("project-form-container");
 const projectsH3 = document.getElementById("projects-h3");
+//stories
 const storyCreateForm = document.getElementById("story-form-container");
 const showTasksBtn = document.getElementById("showTasksBtn");
 const storiesContainer = document.getElementById("stories-container");
@@ -18,17 +20,49 @@ const storyDescriptionInput = document.getElementById(
   "story-description"
 ) as HTMLInputElement;
 const storyPriorityInput = document.getElementById(
-  "priority"
+  "story-priority"
 ) as HTMLSelectElement;
-const storyStatusInput = document.getElementById("status") as HTMLSelectElement;
+const storyStatusInput = document.getElementById(
+  "story-status"
+) as HTMLSelectElement;
+//tasks
+const taskCreateForm = document.getElementById("task-form-container");
+const tasksContainer = document.getElementById("tasks-container");
+const taskFormContainer = document.getElementById("task-form-container");
+const tasksH3 = document.getElementById("tasks-h3");
+const taskDropdown = document.getElementById(
+  "task-dropdown"
+) as HTMLSelectElement;
+const taskNameInput = document.getElementById("task-name") as HTMLInputElement;
+const taskDescriptionInput = document.getElementById(
+  "task-description"
+) as HTMLInputElement;
+const taskPriorityInput = document.getElementById(
+  "task-priority"
+) as HTMLSelectElement;
+const taskStoryInput = document.getElementById(
+  "task-story"
+) as HTMLSelectElement;
+// const taskStatusInput = document.getElementById(
+//   "task-status"
+// ) as HTMLSelectElement;
+const estimatedFinishDateInput = document.getElementById(
+  "estimated-finish-date-picker"
+) as HTMLInputElement;
 
 const storiesKeyIdentifier = "stories-";
+const tasksKeyIdentifier = "task-";
 let loggedUser: User | null = null;
 let chosenProject: Project | null = null;
 
 projectCreateForm!.addEventListener("submit", function (e) {
   e.preventDefault();
   onNewProject(e);
+});
+
+taskCreateForm!.addEventListener("submit", function (e) {
+  e.preventDefault();
+  onNewTask(e);
 });
 
 storyCreateForm!.addEventListener("submit", function (e) {
@@ -51,6 +85,45 @@ type Story = {
   createdDate: Date;
   status: Status;
   owner: User;
+};
+
+type TodoTask = {
+  id: string; //?
+  name: string;
+  description: string;
+  priority: Priority;
+  storyId: string;
+  estimatedFinish: Date;
+  status: Status;
+  createdDate: Date;
+  assignee: User | null;
+};
+
+type DoingTask = {
+  id: string; //?
+  name: string;
+  description: string;
+  priority: Priority;
+  storyId: string;
+  estimatedFinish: Date;
+  status: Status;
+  createdDate: Date;
+  startedDate: Date;
+  assignee: User;
+};
+
+type DoneTask = {
+  id: string; //?
+  name: string;
+  description: string;
+  priority: Priority;
+  storyId: string;
+  estimatedFinish: Date;
+  status: Status;
+  createdDate: Date;
+  startedDate: Date;
+  finishedDate: Date;
+  assignee: User;
 };
 
 enum Priority {
@@ -355,13 +428,18 @@ function createStory(
   throw new Error("Unable to create story.");
 }
 
-function showStories(): void {
+function getStories(): Story[] {
   const storedChosenProject = JSON.parse(
     localStorage.getItem("chosenProject") || "null"
   );
   const key = storiesKeyIdentifier + storedChosenProject!.id;
   const storiesString = localStorage.getItem(key);
   const allStories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+  return allStories;
+}
+
+function showStories(): void {
+  const allStories = getStories();
   const selectedStatus = storyDropdown!.value;
   let stories: Story[];
   if (selectedStatus == "All") {
@@ -467,6 +545,100 @@ function toggleStories(): void {
   showTasksBtn!.classList.toggle("hidden-element");
 }
 
+//tasks
+function handleShowTasksBtn() {
+  toggleStories();
+  toggleTasks();
+  estimatedFinishDateInput.value = new Date().toISOString();
+  estimatedFinishDateInput.min = new Date().toISOString();
+  estimatedFinishDateInput.max = "2035-01-01";
+  const allStories = getStories();
+  let openStories = allStories.filter((s) => s.status != Status.Done);
+  openStories.forEach((story) => {
+    let optionElement = document.createElement("option");
+    optionElement.value = story.id;
+    optionElement.text = story.name;
+
+    taskStoryInput.appendChild(optionElement);
+  });
+  showTasks();
+}
+
+function showTasks() {
+  //todo
+}
+
+function onNewTask(e: Event) {
+  const { name, description, priority, storyId, estimatedFinishDate } =
+    getTasksFormData();
+
+  if (!name || !description || !priority || !storyId || !estimatedFinishDate) {
+    alert("Fill the form!");
+    return;
+  }
+
+  const task = createTask(
+    name,
+    description,
+    priority as Priority,
+    storyId,
+    estimatedFinishDate
+  );
+  saveTask(task as TodoTask);
+  showTasks();
+}
+
+function createTask(
+  name: string,
+  description: string,
+  priority: Priority,
+  storyId: string,
+  estimatedFinishDate: string
+): TodoTask {
+  const id = tasksKeyIdentifier + self.crypto.randomUUID();
+  const createdDate = new Date();
+  const owner = loggedUser;
+
+  if (owner)
+    return {
+      id,
+      name,
+      description,
+      priority,
+      storyId,
+      estimatedFinish: new Date(estimatedFinishDate),
+      status: Status.ToDo,
+      createdDate,
+      assignee: null,
+    };
+  throw new Error("Unable to create story.");
+}
+
+function saveTask(task: TodoTask) {
+  localStorage.setItem(task.id, JSON.stringify(task));
+  showTasks();
+}
+
+function getTasksFormData() {
+  const name: string = taskNameInput.value.trim();
+  const description: string = taskDescriptionInput.value.trim();
+  const priority: string = taskPriorityInput.value;
+  const storyId: string = taskStoryInput.value;
+  const estimatedFinishDate: string = estimatedFinishDateInput.value;
+
+  return { name, description, priority, storyId, estimatedFinishDate };
+}
+
+function toggleTasks(): void {
+  tasksH3!.classList.toggle("h3-element");
+  taskFormContainer!.classList.toggle("form-container");
+  tasksContainer!.classList.toggle("entity-container");
+  tasksH3!.classList.toggle("hidden-element");
+  taskDropdown!.classList.toggle("hidden-element");
+  taskFormContainer!.classList.toggle("hidden-element");
+  tasksContainer!.classList.toggle("hidden-element");
+}
+
 //users
 function createUser(firstName: string, lastName: string, role: Role): void {
   const user = localStorage.getItem(`user-${firstName}${lastName}`);
@@ -501,6 +673,7 @@ function mockLoggedUser(): void {
 }
 
 storyDropdown.addEventListener("change", showStories);
+showTasksBtn?.addEventListener("click", handleShowTasksBtn);
 
 mockLoggedUser();
 showProjects();

@@ -39,15 +39,15 @@
           >
           </textarea>
 
-          <label for="priority">Priority:</label>
-          <select id="priority" name="priority" required>
+          <label for="story-priority">Priority:</label>
+          <select id="story-priority" name="story-priority" required>
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
           </select>
 
-          <label for="status">Status:</label>
-          <select id="status" name="status" required>
+          <label for="story-status">Status:</label>
+          <select id="story-status" name="story-status" required>
             <option value="ToDo">ToDo</option>
             <option value="Doing">Doing</option>
             <option value="Done">Done</option>
@@ -58,7 +58,7 @@
       </div>
       <input
         type="button"
-        value="showTasks"
+        value="Show tasks"
         class="hidden-element"
         id="showTasksBtn"
       />
@@ -73,6 +73,65 @@
       </div>
       <div id="stories-container" class="hidden-element"></div>
     </div>
+    <!-- tasks -->
+    <div id="task-form-container" class="hidden-element">
+      <form id="task-create-form" class="create-form">
+        <label for="task-name">Name:</label>
+        <input type="text" id="task-name" name="task-name" required />
+
+        <label for="task-description">Description:</label>
+        <textarea
+          id="task-description"
+          name="task-description"
+          rows="4"
+          cols="50"
+          required
+        >
+        </textarea>
+
+        <label for="task-priority">Priority:</label>
+        <select id="task-priority" name="task-priority" required>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+
+        <label for="task-story">Story:</label>
+        <select id="task-story" name="task-story" required></select>
+
+        <label for="start">Estimated finish date:</label>
+        <input
+          type="date"
+          id="estimated-finish-date-picker"
+          name="estimated-finish"
+        />
+
+        <!-- <label for="task-status">Status:</label>
+        <select id="task-status" name="task-status" required>
+          <option value="ToDo">ToDo</option>
+          <option value="Doing">Doing</option>
+          <option value="Done">Done</option>
+        </select> -->
+
+        <input type="submit" value="Submit" id="submit-btn" />
+      </form>
+    </div>
+    <input
+      type="button"
+      value="Show tasks"
+      class="hidden-element"
+      id="showTasksBtn"
+    />
+    <div id="tasksContainerHeader">
+      <h3 id="tasks-h3" class="hidden-element">Tasks:</h3>
+      <select id="task-dropdown" class="hidden-element">
+        <option value="All">All</option>
+        <option value="ToDo">ToDo</option>
+        <option value="Doing">Doing</option>
+        <option value="Done">Done</option>
+      </select>
+    </div>
+    <div id="tasks-container" class="hidden-element"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
