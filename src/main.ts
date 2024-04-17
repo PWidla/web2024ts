@@ -585,9 +585,12 @@ function showTasks() {
     singleTaskName.innerHTML = `Task name: ${task.name}`;
 
     let singleTaskAssignee = document.createElement("span");
-    singleTaskAssignee.innerHTML = `Task assignee: ${
-      task.assignee || "no one"
-    }`;
+    console.log("task assignee " + task.assigneeId);
+
+    const assignee = getUserById(task.assigneeId);
+    singleTaskAssignee.innerHTML = assignee
+      ? `Task assignee: ${assignee.firstName} ${assignee.lastName}`
+      : "No task assignee";
 
     singleTaskDiv.appendChild(singleTaskName);
     singleTaskDiv.appendChild(singleTaskAssignee);
@@ -830,6 +833,24 @@ function getUser(firstName: string, lastName: string): User | null {
     );
   }
   return null;
+}
+
+function getUserById(userId: string) {
+  const users: User[] = [];
+
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith("user")) {
+      const userData = localStorage.getItem(key);
+      if (userData) {
+        const user: User = JSON.parse(userData);
+        if (typeof user === "object" && user !== null) {
+          users.push(user);
+        }
+      }
+    }
+  }
+
+  return users.find((user) => user.id == userId);
 }
 
 function mockLoggedUser(): void {
