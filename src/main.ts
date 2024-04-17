@@ -656,10 +656,8 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
     let assigneeSelect = document.createElement("select");
     assigneeSelect.id = "assigneeSelect";
     const assignees: User[] = getAssignees();
-    console.log(assignees);
     assignees.forEach((assignee) => {
       let assigneeOption = document.createElement("option");
-      console.log("assignee.id: " + assignee.id);
 
       assigneeOption.value = assignee.id;
       assigneeOption.text = `${assignee.firstName} ${assignee.lastName}`;
@@ -667,14 +665,28 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
     });
 
     let saveTaskBtn = document.createElement("button");
-    saveTaskBtn.id = "saveTaskBtn";
-    saveTaskBtn.innerHTML = "Save";
-    saveTaskBtn.addEventListener("click", function () {
-      const updatedTask = updateTaskToDoing(task);
-      if (updatedTask) {
-        saveTask(updatedTask);
-      }
-    });
+    if (task.status !== "Done") {
+      saveTaskBtn.id = "saveTaskBtn";
+      saveTaskBtn.innerHTML = "Save";
+      saveTaskBtn.addEventListener("click", function () {
+        const updatedTask = updateTaskToDoing(task);
+        if (updatedTask) {
+          saveTask(updatedTask);
+        }
+      });
+    }
+
+    let finishTaskBtn = document.createElement("button");
+    if (task.status === "Doing") {
+      finishTaskBtn.id = "finishTaskBtn";
+      finishTaskBtn.innerHTML = "Mark as done";
+      finishTaskBtn.addEventListener("click", function () {
+        const updatedTask = updateTaskToDone(task as DoingTask);
+        if (updatedTask) {
+          saveTask(updatedTask);
+        }
+      });
+    }
 
     modalContentDiv.appendChild(singleTaskName);
     modalContentDiv.appendChild(singleTaskDescription);
@@ -683,10 +695,13 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
     modalContentDiv.appendChild(singleTaskEstimatedFinish);
     modalContentDiv.appendChild(singleTaskStatus);
     modalContentDiv.appendChild(singleTaskCreatedDate);
-    modalContentDiv.appendChild(saveTaskBtn);
-    modalContentDiv.appendChild(assigneeLabel);
-    modalContentDiv.appendChild(assigneeSelect);
-    modalContentDiv.appendChild(saveTaskBtn);
+
+    if (task.status !== "Done") {
+      modalContentDiv.appendChild(assigneeLabel);
+      modalContentDiv.appendChild(assigneeSelect);
+      modalContentDiv.appendChild(saveTaskBtn);
+      modalContentDiv.appendChild(finishTaskBtn);
+    }
 
     taskModalDiv!.style.display = "block";
     modalContentDiv.classList.remove("hidden-element");
@@ -783,6 +798,16 @@ function updateTaskToDoing(task: TodoTask): DoingTask | null {
   };
 
   return doingTask;
+}
+
+function updateTaskToDone(task: DoingTask): DoneTask | null {
+  const doneTask: DoneTask = {
+    ...task,
+    finishedDate: new Date(),
+    status: Status.Done,
+  };
+
+  return doneTask;
 }
 
 function saveTask(task: TodoTask | DoingTask | DoneTask) {
