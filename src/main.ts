@@ -737,9 +737,17 @@ function getStoryName(storyId: string): string {
 }
 
 function moveTaskBack(task: DoingTask | DoneTask) {
-  task =
-    task.status === "Doing" ? updateTaskToToDo(task) : updateTaskToDoing(task);
-  saveTask(task);
+  if (task.status === Status.Doing) {
+    const updatedTask = updateTaskToToDo(task);
+    if (updatedTask) {
+      saveTask(updatedTask);
+    }
+  } else if (task.status === Status.Done) {
+    const updatedTask = updateTaskToDoing(task);
+    if (updatedTask) {
+      saveTask(updatedTask);
+    }
+  }
 }
 
 function getAssignees(): User[] {
@@ -799,10 +807,11 @@ function updateTaskToToDo(task: DoingTask): DoingTask {
   return {
     ...task,
     status: Status.ToDo,
+    assigneeId: "",
   };
 }
 
-function updateTaskToDoing(task: TodoTask | DoneTask): DoingTask {
+function updateTaskToDoing(task: TodoTask | DoneTask): DoingTask | null {
   if (task.status === Status.Done) {
     return {
       ...(task as DoneTask),
