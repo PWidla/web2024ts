@@ -703,6 +703,17 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
       modalContentDiv.appendChild(finishTaskBtn);
     }
 
+    if (task.status !== "ToDo") {
+      let moveTaskBackBtn = document.createElement("button");
+      moveTaskBackBtn.id = "moveTaskBackBtn";
+      moveTaskBackBtn.innerHTML = "Move task to previous stage";
+      moveTaskBackBtn.addEventListener("click", () =>
+        moveTaskBack(task as DoingTask | DoneTask)
+      );
+
+      modalContentDiv.appendChild(moveTaskBackBtn);
+    }
+
     taskModalDiv!.style.display = "block";
     modalContentDiv.classList.remove("hidden-element");
     closeModalBtn!.classList.remove("hidden-element");
@@ -723,6 +734,12 @@ function getStoryName(storyId: string): string {
     (story) => story.id === storyId
   );
   return story!.name;
+}
+
+function moveTaskBack(task: DoingTask | DoneTask) {
+  task =
+    task.status === "Doing" ? updateTaskToToDo(task) : updateTaskToDoing(task);
+  saveTask(task);
 }
 
 function getAssignees(): User[] {
@@ -778,7 +795,21 @@ function createTask(
   throw new Error("Unable to create story.");
 }
 
-function updateTaskToDoing(task: TodoTask): DoingTask | null {
+function updateTaskToToDo(task: DoingTask): DoingTask {
+  return {
+    ...task,
+    status: Status.ToDo,
+  };
+}
+
+function updateTaskToDoing(task: TodoTask | DoneTask): DoingTask {
+  if (task.status === Status.Done) {
+    return {
+      ...(task as DoneTask),
+      status: Status.Doing,
+    };
+  }
+
   const selectedAssignee = document.getElementById(
     "assigneeSelect"
   ) as HTMLSelectElement | null;
