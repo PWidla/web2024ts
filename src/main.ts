@@ -673,6 +673,13 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
       handleEditTaskBtnClick(task);
     });
 
+    let deleteTaskBtn = document.createElement("button");
+    deleteTaskBtn.id = "deleteTaskBtn";
+    deleteTaskBtn.innerHTML = "Delete";
+    deleteTaskBtn.addEventListener("click", function () {
+      handleDeleteTaskBtnClick(task.id);
+    });
+
     let saveTaskBtn = document.createElement("button");
     if (task.status !== "Done") {
       saveTaskBtn.id = "saveTaskBtn";
@@ -723,6 +730,7 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
       modalContentDiv.appendChild(moveTaskBackBtn);
     }
     modalContentDiv.appendChild(editTaskBtn);
+    modalContentDiv.appendChild(deleteTaskBtn);
 
     taskModalDiv!.style.display = "block";
     modalContentDiv.classList.remove("hidden-element");
@@ -730,6 +738,12 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
 
     closeModalBtn!.addEventListener("click", () => closeModal());
   }
+}
+
+function handleDeleteTaskBtnClick(taskId: string) {
+  localStorage.removeItem(taskId);
+  showTasks();
+  closeModal();
 }
 
 function closeModal() {
