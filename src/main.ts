@@ -757,6 +757,18 @@ function handleSaveUpdatedTaskBtn(
   saveUpdatedTaskBtn: HTMLButtonElement
 ) {
   const formData = getTasksFormData();
+
+  if (
+    !formData.name ||
+    !formData.description ||
+    !formData.priority ||
+    !formData.storyId ||
+    !task.estimatedFinishDate
+  ) {
+    alert("Fill the form!");
+    return;
+  }
+
   task.name = formData.name;
   task.description = formData.description;
   task.priority = formData.priority as Priority;
