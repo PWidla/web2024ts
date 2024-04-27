@@ -32,6 +32,7 @@ const todoTasksContainer = document.getElementById("todo-tasks-container");
 const doingTasksContainer = document.getElementById("doing-tasks-container");
 const doneTasksContainer = document.getElementById("done-tasks-container");
 const taskFormContainer = document.getElementById("task-form-container");
+const tasksContainerHeader = document.getElementById("tasks-container-header");
 const tasksH3 = document.getElementById("tasks-h3");
 const taskDropdown = document.getElementById(
   "task-dropdown"
@@ -664,6 +665,19 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
       assigneeSelect.appendChild(assigneeOption);
     });
 
+    let editTaskBtn = document.createElement("button");
+    editTaskBtn.id = "editTaskBtn";
+    editTaskBtn.innerHTML = "Edit";
+    editTaskBtn.addEventListener("click", function () {
+      const updatedTask = editTask(task);
+      if (updatedTask) {
+        tasksContainerHeader!.classList.remove("hidden-element");
+        tasksContainer!.classList.remove("hidden-element");
+        tasksContainer!.classList.add("entity-container");
+        saveTask(updatedTask);
+      }
+    });
+
     let saveTaskBtn = document.createElement("button");
     if (task.status !== "Done") {
       saveTaskBtn.id = "saveTaskBtn";
@@ -712,18 +726,47 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
       );
 
       modalContentDiv.appendChild(moveTaskBackBtn);
+      modalContentDiv.appendChild(editTaskBtn);
     }
 
     taskModalDiv!.style.display = "block";
     modalContentDiv.classList.remove("hidden-element");
     closeModalBtn!.classList.remove("hidden-element");
 
-    closeModalBtn!.addEventListener("click", function (e) {
-      taskModalDiv!.style.display = "none";
-      modalContentDiv!.classList.add("hidden-element");
-      closeModalBtn!.classList.add("hidden-element");
-    });
+    closeModalBtn!.addEventListener("click", () => closeModal());
   }
+}
+
+function closeModal() {
+  taskModalDiv!.style.display = "none";
+  modalContentDiv!.classList.add("hidden-element");
+  closeModalBtn!.classList.add("hidden-element");
+}
+
+function editTask(task: TodoTask | DoingTask | DoneTask) {
+  closeModal();
+  hideKudoBoard();
+  tasksContainer!.classList.remove("entity-container");
+  tasksContainerHeader!.classList.add("hidden-element");
+  fillFormWithTaskData(task);
+}
+
+function fillFormWithTaskData(task: TodoTask | DoingTask | DoneTask) {
+  taskNameInput.value = task.name;
+  taskDescriptionInput.value = task.description;
+  taskPriorityInput.value = task.priority;
+  taskStoryInput.value = task.storyId;
+
+  const taskEstimatedFinishDate = new Date(task.estimatedFinishDate)
+    .toISOString()
+    .slice(0, 10);
+  estimatedFinishDateInput.value = taskEstimatedFinishDate;
+}
+
+function hideKudoBoard() {
+  todoTasksContainer!.innerHTML = "";
+  doingTasksContainer!.innerHTML = "";
+  doneTasksContainer!.innerHTML = "";
 }
 
 function getStoryName(storyId: string): string {
