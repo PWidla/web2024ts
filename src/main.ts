@@ -56,6 +56,7 @@ const estimatedFinishDateInput = document.getElementById(
 const taskModalDiv = document.getElementById("task-modal");
 const modalContentDiv = document.getElementById("modal-content");
 const closeModalBtn = document.getElementById("close-modal-btn");
+const submitTaskFormBtn = document.getElementById("submit-task-btn");
 
 const storiesKeyIdentifier = "stories-";
 const tasksKeyIdentifier = "task-";
@@ -669,13 +670,7 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
     editTaskBtn.id = "editTaskBtn";
     editTaskBtn.innerHTML = "Edit";
     editTaskBtn.addEventListener("click", function () {
-      const updatedTask = editTask(task);
-      if (updatedTask) {
-        tasksContainerHeader!.classList.remove("hidden-element");
-        tasksContainer!.classList.remove("hidden-element");
-        tasksContainer!.classList.add("entity-container");
-        saveTask(updatedTask);
-      }
+      handleEditTaskBtnClick(task);
     });
 
     let saveTaskBtn = document.createElement("button");
@@ -726,8 +721,8 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
       );
 
       modalContentDiv.appendChild(moveTaskBackBtn);
-      modalContentDiv.appendChild(editTaskBtn);
     }
+    modalContentDiv.appendChild(editTaskBtn);
 
     taskModalDiv!.style.display = "block";
     modalContentDiv.classList.remove("hidden-element");
@@ -743,12 +738,33 @@ function closeModal() {
   closeModalBtn!.classList.add("hidden-element");
 }
 
-function editTask(task: TodoTask | DoingTask | DoneTask) {
+function handleEditTaskBtnClick(task: TodoTask | DoingTask | DoneTask) {
+  let saveUpdatedTaskBtn = document.createElement("button");
+  saveUpdatedTaskBtn.innerText = "Save";
+  saveUpdatedTaskBtn.addEventListener("click", () => saveUpdatedTask(task));
+  taskFormContainer!.appendChild(saveUpdatedTaskBtn);
+
   closeModal();
   hideKudoBoard();
-  tasksContainer!.classList.remove("entity-container");
-  tasksContainerHeader!.classList.add("hidden-element");
+  toggleElementsVisibility();
   fillFormWithTaskData(task);
+}
+
+function saveUpdatedTask(task: TodoTask | DoingTask | DoneTask) {
+  const formData = getTasksFormData();
+
+  task.name = formData.name;
+  task.description = formData.description;
+  task.priority = formData.priority as Priority;
+  task.storyId = formData.storyId;
+  task.estimatedFinishDate = new Date(formData.estimatedFinishDate);
+
+  updateTask(task.id, task);
+}
+
+function updateTask(taskId: string, task: TodoTask | DoingTask | DoneTask) {
+  const key = tasksKeyIdentifier + taskId;
+  localStorage.setItem(key, JSON.stringify(task));
 }
 
 function fillFormWithTaskData(task: TodoTask | DoingTask | DoneTask) {
@@ -761,6 +777,13 @@ function fillFormWithTaskData(task: TodoTask | DoingTask | DoneTask) {
     .toISOString()
     .slice(0, 10);
   estimatedFinishDateInput.value = taskEstimatedFinishDate;
+}
+
+function toggleElementsVisibility() {
+  tasksContainer!.classList.toggle("hidden-element");
+  tasksContainer!.classList.toggle("entity-container");
+  tasksContainerHeader!.classList.toggle("hidden-element");
+  submitTaskFormBtn!.classList.toggle("hidden-element");
 }
 
 function hideKudoBoard() {
