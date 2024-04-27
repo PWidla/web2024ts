@@ -741,7 +741,9 @@ function closeModal() {
 function handleEditTaskBtnClick(task: TodoTask | DoingTask | DoneTask) {
   let saveUpdatedTaskBtn = document.createElement("button");
   saveUpdatedTaskBtn.innerText = "Save";
-  saveUpdatedTaskBtn.addEventListener("click", () => saveUpdatedTask(task));
+  saveUpdatedTaskBtn.addEventListener("click", () =>
+    handleSaveUpdatedTaskBtn(task, saveUpdatedTaskBtn)
+  );
   taskFormContainer!.appendChild(saveUpdatedTaskBtn);
 
   closeModal();
@@ -750,16 +752,21 @@ function handleEditTaskBtnClick(task: TodoTask | DoingTask | DoneTask) {
   fillFormWithTaskData(task);
 }
 
-function saveUpdatedTask(task: TodoTask | DoingTask | DoneTask) {
+function handleSaveUpdatedTaskBtn(
+  task: TodoTask | DoingTask | DoneTask,
+  saveUpdatedTaskBtn: HTMLButtonElement
+) {
   const formData = getTasksFormData();
-
   task.name = formData.name;
   task.description = formData.description;
   task.priority = formData.priority as Priority;
   task.storyId = formData.storyId;
   task.estimatedFinishDate = new Date(formData.estimatedFinishDate);
 
+  saveUpdatedTaskBtn.style.display = "none";
   updateTask(task.id, task);
+  toggleElementsVisibility();
+  showTasks();
 }
 
 function updateTask(taskId: string, task: TodoTask | DoingTask | DoneTask) {
