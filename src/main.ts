@@ -770,8 +770,7 @@ function handleSaveUpdatedTaskBtn(
 }
 
 function updateTask(taskId: string, task: TodoTask | DoingTask | DoneTask) {
-  const key = tasksKeyIdentifier + taskId;
-  localStorage.setItem(key, JSON.stringify(task));
+  localStorage.setItem(taskId, JSON.stringify(task));
 }
 
 function fillFormWithTaskData(task: TodoTask | DoingTask | DoneTask) {
