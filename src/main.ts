@@ -153,13 +153,24 @@ enum Role {
 
 class User {
   id: string;
+  username: string;
+  password: string;
   firstName: string;
   lastName: string;
   loggedIn: boolean;
   role: Role;
 
-  constructor(id: string, firstName: string, lastName: string, role: Role) {
+  constructor(
+    id: string,
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    role: Role
+  ) {
     this.id = id;
+    this.username = username;
+    this.password = password;
     this.firstName = firstName;
     this.lastName = lastName;
     this.loggedIn = false;
@@ -974,22 +985,37 @@ function toggleTasks(): void {
 }
 
 //users
-function createUser(firstName: string, lastName: string, role: Role): void {
-  const user = localStorage.getItem(`user-${firstName}${lastName}`);
+function createUser(
+  username: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  role: Role
+): void {
+  const user = localStorage.getItem(`user-${username}`);
   if (!user) {
-    const user = new User(self.crypto.randomUUID(), firstName, lastName, role);
-    localStorage.setItem(`user-${firstName}${lastName}`, JSON.stringify(user));
+    const user = new User(
+      self.crypto.randomUUID(),
+      username,
+      password,
+      firstName,
+      lastName,
+      role
+    );
+    localStorage.setItem(`user-${username}`, JSON.stringify(user));
     return;
   }
   // alert("User with this username alreadt exists");
 }
 
-function getUser(firstName: string, lastName: string): User | null {
-  const userString = localStorage.getItem(`user-${firstName}${lastName}`);
+function getUserByUsername(username: string): User | null {
+  const userString = localStorage.getItem(`user-${username}`);
   if (userString) {
     const userData = JSON.parse(userString);
     return new User(
       userData.id,
+      userData.username,
+      userData.password,
       userData.firstName,
       userData.lastName,
       userData.Role
@@ -1016,16 +1042,34 @@ function getUserById(userId: string) {
   return users.find((user) => user.id == userId);
 }
 
-function mockLoggedUser(): void {
-  createUser("AdminFirstName", "AdminLastName", Role.Admin);
-  createUser("DevOpsFirstName", "DevOpsLastName", Role.DevOps);
-  createUser("DeveloperFirstName", "DeveloperLastName", Role.Developer);
-  const user = getUser("AdminFirstName", "AdminLastName");
+function mockUsers(): void {
+  createUser(
+    "admin1",
+    "adminpwd",
+    "AdminFirstName",
+    "AdminLastName",
+    Role.Admin
+  );
+  createUser(
+    "devops1",
+    "devopspwd",
+    "DevOpsFirstName",
+    "DevOpsLastName",
+    Role.DevOps
+  );
+  createUser(
+    "dev1",
+    "devpwd",
+    "DeveloperFirstName",
+    "DeveloperLastName",
+    Role.Developer
+  );
+  const user = getUserByUsername("admin1");
   user!.login();
 }
 
 storyDropdown.addEventListener("change", showStories);
 showTasksBtn?.addEventListener("click", handleShowTasksBtn);
 
-mockLoggedUser();
+mockUsers();
 showProjects();

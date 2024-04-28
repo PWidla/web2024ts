@@ -8,8 +8,12 @@
   </head>
   <body>
     <div id="main">
-      <div id="project-form-container" class="form-container">
-        <form id="project-create-form" class="create-form">
+      <div id="loginForm">
+        
+      </div>
+
+      <div id="project-form-container" class="form-container hidden-element">
+        <form id="project-create-form" class="create-form hidden-element">
           <label for="project-name">Name</label>
           <input type="text" name="project-name" id="project-name" />
           <label for="project-description">Description</label>
@@ -21,8 +25,11 @@
           <input type="submit" value="Submit" id="submit-project-btn" />
         </form>
       </div>
-      <h3 id="projects-h3" class="h3-element">Projects:</h3>
-      <div id="projects-container" class="entity-container"></div>
+      <h3 id="projects-h3" class="h3-element hidden-element">Projects:</h3>
+      <div
+        id="projects-container"
+        class="entity-container hidden-element"
+      ></div>
       <!-- stories -->
       <div id="story-form-container" class="hidden-element">
         <form id="story-create-form" class="create-form">
