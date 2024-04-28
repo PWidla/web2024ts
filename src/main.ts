@@ -59,6 +59,7 @@ const modalContentDiv = document.getElementById("modal-content");
 const closeModalBtn = document.getElementById("close-modal-btn");
 const submitTaskFormBtn = document.getElementById("submit-task-btn");
 //login form
+const loginFormContainer = document.getElementById("login-form-container");
 // const usernameInput = document.getElementById(
 //   "username-input"
 // ) as HTMLInputElement;
@@ -193,11 +194,16 @@ class User {
   login(): void {
     loggedUser = this;
     this.loggedIn = true;
+    toggleLoginFormVisibility();
+    toggleProjectsElementsVisibility();
+    showProjects();
   }
 
   logout(): void {
     loggedUser = null;
     this.loggedIn = false;
+    toggleLoginFormVisibility();
+    toggleProjectsElementsVisibility();
   }
 }
 
@@ -248,6 +254,17 @@ function showProjects(): void {
       }
     }
   }
+}
+
+function toggleLoginFormVisibility() {
+  loginFormContainer!.classList.toggle("hidden-element");
+}
+
+function toggleProjectsElementsVisibility() {
+  projectCreateForm!.classList.toggle("hidden-element");
+  projectsContainer!.classList.toggle("hidden-element");
+  projectFormContainer!.classList.toggle("hidden-element");
+  projectsH3!.classList.toggle("hidden-element");
 }
 
 function showSingleProject(project: Project): void {
@@ -1115,7 +1132,7 @@ async function onLogin(e: Event) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      // body: JSON.stringify({ username, password }),
     });
 
     if (!response.ok) {
@@ -1123,7 +1140,9 @@ async function onLogin(e: Event) {
     }
 
     const data = await response.json();
-    console.log(data);
+    if (data.token) {
+      user.login();
+    }
     // Store token and refreshToken securely (e.g., in localStorage or sessionStorage)
   } catch (error) {
     console.error("Error:", error);
