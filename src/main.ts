@@ -1094,7 +1094,8 @@ function getLoginFormData() {
   return { username, password };
 }
 
-function onLogin(e: Event) {
+async function onLogin(e: Event) {
+  e.preventDefault();
   const { username, password } = getLoginFormData();
 
   if (!username || !password) {
@@ -1108,19 +1109,25 @@ function onLogin(e: Event) {
     return;
   }
 
-  fetch("http://localhost:3000/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      // Store token and refreshToken securely (e.g., in localStorage or sessionStorage)
-    })
-    .catch((error) => console.error("Error:", error));
+  try {
+    const response = await fetch("http://localhost:3000/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    console.log(data);
+    // Store token and refreshToken securely (e.g., in localStorage or sessionStorage)
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 
 storyDropdown.addEventListener("change", showStories);
