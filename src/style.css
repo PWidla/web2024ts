@@ -107,3 +107,7 @@
   right: 10px;
   z-index: 10000;
 }
+
+#login-form {
+  width: max-content;
+}

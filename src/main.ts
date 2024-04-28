@@ -26,6 +26,7 @@ const storyStatusInput = document.getElementById(
   "story-status"
 ) as HTMLSelectElement;
 //tasks
+const loginForm = document.getElementById("login-form");
 const taskCreateForm = document.getElementById("task-form-container");
 const tasksContainer = document.getElementById("tasks-grid-container");
 const todoTasksContainer = document.getElementById("todo-tasks-container");
@@ -57,11 +58,23 @@ const taskModalDiv = document.getElementById("task-modal");
 const modalContentDiv = document.getElementById("modal-content");
 const closeModalBtn = document.getElementById("close-modal-btn");
 const submitTaskFormBtn = document.getElementById("submit-task-btn");
+//login form
+// const usernameInput = document.getElementById(
+//   "username-input"
+// ) as HTMLInputElement;
+// const passwordInput = document.getElementById(
+//   "password-input"
+// ) as HTMLInputElement;
 
 const storiesKeyIdentifier = "stories-";
 const tasksKeyIdentifier = "task-";
 let loggedUser: User | null = null;
 let chosenProject: Project | null = null;
+
+loginForm!.addEventListener("submit", function (e) {
+  e.preventDefault();
+  onLogin(e);
+});
 
 projectCreateForm!.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -1068,8 +1081,30 @@ function mockUsers(): void {
   user!.login();
 }
 
+function getLoginFormData() {
+  const usernameInput = document.getElementById(
+    "username-input"
+  ) as HTMLInputElement;
+  const passwordInput = document.getElementById(
+    "password-input"
+  ) as HTMLInputElement;
+
+  const username: string = usernameInput.value;
+  const password: string = passwordInput.value;
+  return { username, password };
+}
+
+function onLogin(e: Event) {
+  const { username, password } = getLoginFormData();
+
+  if (!username || !password) {
+    alert("Fill the form!");
+    return;
+  }
+}
+
 storyDropdown.addEventListener("change", showStories);
 showTasksBtn?.addEventListener("click", handleShowTasksBtn);
 
 mockUsers();
-showProjects();
+// showProjects();
