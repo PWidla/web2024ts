@@ -1101,6 +1101,26 @@ function onLogin(e: Event) {
     alert("Fill the form!");
     return;
   }
+
+  const user = getUserByUsername(username);
+  if (!user || user.password != password) {
+    alert("Incorrect credentials");
+    return;
+  }
+
+  fetch("http://localhost:3000/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      // Store token and refreshToken securely (e.g., in localStorage or sessionStorage)
+    })
+    .catch((error) => console.error("Error:", error));
 }
 
 storyDropdown.addEventListener("change", showStories);
