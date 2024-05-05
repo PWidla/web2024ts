@@ -277,7 +277,9 @@ function showSingleProject(project: Project): void {
   let chooseProjectBtn = document.createElement("button");
 
   projectSpan.innerHTML = `name: ${project.name}, description: ${project.description}`;
-  projectSpan.addEventListener("click", () => markProjectOut(projectDiv));
+  projectSpan.addEventListener("click", () =>
+    markProjectOut(projectDiv, project.id)
+  );
   deleteProjectBtn.classList.add("project-button");
   deleteProjectBtn.innerText = "Delete";
   deleteProjectBtn.addEventListener("click", () =>
@@ -303,7 +305,13 @@ function showSingleProject(project: Project): void {
   projectsContainer!.appendChild(projectDiv);
 }
 
-function markProjectOut(projectDiv: HTMLDivElement): void {
+function markProjectOut(projectDiv: HTMLDivElement, projectId: string): void {
+  const selectedProject: HTMLDivElement | null =
+    document.querySelector(".marked");
+  if (selectedProject) {
+    selectedProject.classList.toggle("marked");
+  }
+
   projectDiv.classList.toggle("marked");
 }
 
@@ -318,6 +326,10 @@ function deleteProject(projectId: string) {
 }
 
 function handleChooseProjectBtn(projectId: string) {
+  if (chosenProject && chosenProject.id != projectId) {
+    chosenProject = null;
+  }
+
   chooseProject(projectId);
   showStories();
 }
