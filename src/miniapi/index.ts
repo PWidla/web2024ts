@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 
 // const tokenSecret = process.env.TOKEN_SECRET as string;
-const tokenSecret = "eee";
+const tokenSecret = process.env.TOKEN_SECRET ;
 let refreshToken: string;
 
 app.use(cors());

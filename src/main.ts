@@ -1143,7 +1143,7 @@ async function onLogin(e: Event) {
     if (data.token) {
       user.login();
     }
-    // Store token and refreshToken securely (e.g., in localStorage or sessionStorage)
+    // Store token
   } catch (error) {
     console.error("Error:", error);
   }
