@@ -26,7 +26,8 @@ button {
 }
 
 .create-form,
-.entity-container {
+.entity-container,
+.entity-container-night {
   display: flex;
   flex-direction: column;
 }
@@ -56,18 +57,9 @@ button {
   font-size: 1.6em;
 }
 
-.entity-container-night > div {
-  padding-bottom: 30px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-  border: #050 2px solid;
-  border-radius: 15px;
+.entity-container-night-mode > div {
+ 
   background-color: #702614;
-  align-items: center;
-  text-align: center;
-  font-size: 1.6em;
 }
 
 #story-save-button,

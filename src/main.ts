@@ -250,6 +250,7 @@ function createProject(name: string, description: string): Project {
 }
 
 function showProjects(): void {
+  toggleContainerNightMode();
   projectsContainer!.innerHTML = "";
   for (const key of Object.keys(localStorage)) {
     if (key.startsWith("project")) {
@@ -615,6 +616,7 @@ function toggleStories(): void {
   storyFormContainer!.classList.toggle("hidden-element");
   storiesContainer!.classList.toggle("hidden-element");
   showTasksBtn!.classList.toggle("hidden-element");
+  toggleContainerNightMode();
 }
 
 //tasks
@@ -646,6 +648,7 @@ function handleShowTasksBtn() {
 }
 
 function showTasks() {
+  toggleContainerNightMode();
   todoTasksContainer!.innerHTML = "";
   doingTasksContainer!.innerHTML = "";
   doneTasksContainer!.innerHTML = "";
@@ -1186,9 +1189,27 @@ async function onLogin(e: Event) {
 
 function handleToggleNightMode() {
   if (nightModeOn == false) {
+    nightModeOn = true;
     document.body.style.backgroundColor = "#1f1f1f";
     document.body.style.color = "white";
     tasksContainer!.style.backgroundColor = "black";
+  } else {
+    nightModeOn = false;
+  }
+  toggleContainerNightMode();
+}
+
+function toggleContainerNightMode() {
+  const containers = document.querySelectorAll(".entity-container");
+
+  if (nightModeOn == true) {
+    containers.forEach((container) => {
+      container.classList.add("entity-container-night-mode");
+    });
+  } else {
+    containers.forEach((container) => {
+      container.classList.remove("entity-container-night-mode");
+    });
   }
 }
 
