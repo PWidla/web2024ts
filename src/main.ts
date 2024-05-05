@@ -7,6 +7,7 @@ const projectsH3 = document.getElementById("projects-h3");
 //stories
 const storyCreateForm = document.getElementById("story-form-container");
 const showTasksBtn = document.getElementById("showTasksBtn");
+const showProjectsBtn = document.getElementById("showProjectsBtn");
 const storiesContainer = document.getElementById("stories-container");
 const storyFormContainer = document.getElementById("story-form-container");
 const storiesH3 = document.getElementById("stories-h3");
@@ -27,6 +28,7 @@ const storyStatusInput = document.getElementById(
 ) as HTMLSelectElement;
 //tasks
 const loginForm = document.getElementById("login-form");
+const showStoriesBtn = document.getElementById("showStoriesBtn");
 const taskCreateForm = document.getElementById("task-form-container");
 const tasksContainer = document.getElementById("tasks-grid-container");
 const todoTasksContainer = document.getElementById("todo-tasks-container");
@@ -415,6 +417,13 @@ function getProject(projectId: string): Project | null {
   return null;
 }
 
+function handleShowProjectsBtn() {
+  projectFormContainer?.classList.toggle("form-container");
+  projectsContainer!.classList.toggle("entity-container");
+  toggleStories();
+  toggleProjectsElementsVisibility();
+}
+
 //stories
 
 function getStoriesFormData() {
@@ -581,6 +590,8 @@ function deleteStory(storyId: string) {
 }
 
 function toggleStories(): void {
+  showProjectsBtn?.classList.toggle("hidden-element");
+
   storiesH3!.classList.toggle("h3-element");
   storyFormContainer!.classList.toggle("form-container");
   storiesContainer!.classList.toggle("entity-container");
@@ -592,6 +603,14 @@ function toggleStories(): void {
 }
 
 //tasks
+
+function handleShowStoriesBtn() {
+  // projectFormContainer?.classList.toggle("form-container");
+  // projectsContainer!.classList.toggle("entity-container");
+  toggleStories();
+  toggleTasks();
+}
+
 function handleShowTasksBtn() {
   toggleStories();
   toggleTasks();
@@ -1005,6 +1024,7 @@ function getTasksFormData() {
 }
 
 function toggleTasks(): void {
+  showStoriesBtn?.classList.toggle("hidden-element");
   tasksH3!.classList.toggle("h3-element");
   taskFormContainer!.classList.toggle("form-container");
   tasksContainer!.classList.toggle("entity-container");
@@ -1151,6 +1171,8 @@ async function onLogin(e: Event) {
 
 storyDropdown.addEventListener("change", showStories);
 showTasksBtn?.addEventListener("click", handleShowTasksBtn);
+showProjectsBtn?.addEventListener("click", handleShowProjectsBtn);
+showStoriesBtn?.addEventListener("click", handleShowStoriesBtn);
 
 mockUsers();
 // showProjects();
