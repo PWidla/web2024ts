@@ -1192,9 +1192,10 @@ function handleToggleNightMode() {
     nightModeOn = true;
     document.body.style.backgroundColor = "#1f1f1f";
     document.body.style.color = "white";
-    tasksContainer!.style.backgroundColor = "black";
   } else {
     nightModeOn = false;
+    document.body.style.backgroundColor = "bisque";
+    document.body.style.color = "black";
   }
   toggleContainerNightMode();
 }
