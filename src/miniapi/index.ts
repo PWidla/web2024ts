@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 
 // const tokenSecret = process.env.TOKEN_SECRET as string;
-const tokenSecret = process.env.TOKEN_SECRET ;
+const tokenSecret = process.env.TOKEN_SECRET;
 let refreshToken: string;
 
 app.use(cors());
@@ -48,7 +48,7 @@ app.listen(port, () => {
 
 function generateToken(expirationInSeconds: number) {
   const exp = Math.floor(Date.now() / 1000) + expirationInSeconds;
-  const token = jwt.sign({ exp, foo: "bar" }, tokenSecret, {
+  const token = jwt.sign({ exp, foo: "bar" }, tokenSecret!, {
     algorithm: "HS256",
   });
   return token;
@@ -60,7 +60,7 @@ function verifyToken(req: any, res: any, next: any) {
 
   if (!token) return res.sendStatus(403);
 
-  jwt.verify(token, tokenSecret, (err: any, user: any) => {
+  jwt.verify(token, tokenSecret!, (err: any, user: any) => {
     if (err) {
       console.log(err);
       return res.status(401).send(err.message);
