@@ -1,4 +1,5 @@
 const mainContainer = document.getElementById("main");
+const toggleNightModeBtn = document.getElementById("toggle-night-mode-btn");
 //projects
 const projectCreateForm = document.getElementById("project-create-form");
 const projectsContainer = document.getElementById("projects-container");
@@ -68,6 +69,8 @@ const loginFormContainer = document.getElementById("login-form-container");
 // const passwordInput = document.getElementById(
 //   "password-input"
 // ) as HTMLInputElement;
+
+let nightModeOn = false;
 
 const storiesKeyIdentifier = "stories-";
 const tasksKeyIdentifier = "task-";
@@ -1039,7 +1042,7 @@ function toggleTasks(): void {
   showStoriesBtn?.classList.toggle("hidden-element");
   tasksH3!.classList.toggle("h3-element");
   taskFormContainer!.classList.toggle("form-container");
-  tasksContainer!.classList.toggle("entity-container");
+  tasksContainer!.classList.toggle("tasks-container");
   tasksH3!.classList.toggle("hidden-element");
   // taskDropdown!.classList.toggle("hidden-element");
   taskFormContainer!.classList.toggle("hidden-element");
@@ -1181,10 +1184,19 @@ async function onLogin(e: Event) {
   }
 }
 
+function handleToggleNightMode() {
+  if (nightModeOn == false) {
+    document.body.style.backgroundColor = "#1f1f1f";
+    document.body.style.color = "white";
+    tasksContainer!.style.backgroundColor = "black";
+  }
+}
+
 storyDropdown.addEventListener("change", showStories);
 showTasksBtn?.addEventListener("click", handleShowTasksBtn);
 showProjectsBtn?.addEventListener("click", handleShowProjectsBtn);
 showStoriesBtn?.addEventListener("click", handleShowStoriesBtn);
+toggleNightModeBtn!.addEventListener("click", handleToggleNightMode);
 
 mockUsers();
 // showProjects();
