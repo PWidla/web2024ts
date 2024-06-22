@@ -252,13 +252,31 @@ function createProject(name: string, description: string): Project {
 function showProjects(): void {
   toggleContainerNightMode();
   projectsContainer!.innerHTML = "";
-  for (const key of Object.keys(localStorage)) {
-    if (key.startsWith("project")) {
-      const item = JSON.parse(localStorage.getItem(key) || "null");
-      if (item) {
-        showSingleProject(item);
-      }
+  // for (const key of Object.keys(localStorage)) {
+  //   if (key.startsWith("project")) {
+  //     const item = JSON.parse(localStorage.getItem(key) || "null");
+  //     if (item) {
+  //       showSingleProject(item);
+  //     }
+  //   }
+  // }
+  const projects: Project[] = fetchProjects();
+  projects.forEach((project) => {
+    showSingleProject(project);
+  });
+}
+
+async function fetchProjects(): Promise<Project> {
+  try {
+    const response = await fetch("http://localhost:3000/ManageMeDB/project/");
+    if (!response.ok) {
+      throw new Error(`Http error. status: ${response.status}`);
     }
+    const projects: Project[] = await response.json();
+    return projects;
+  } catch (error: any) {
+    console.error("Failed to fetch projects: ", error);
+    throw error;
   }
 }
 
