@@ -1,3 +1,5 @@
+import Project, { IProject } from "./db/models/project";
+
 const mainContainer = document.getElementById("main");
 const toggleNightModeBtn = document.getElementById("toggle-night-mode-btn");
 //projects
@@ -75,7 +77,7 @@ let nightModeOn = false;
 const storiesKeyIdentifier = "stories-";
 const tasksKeyIdentifier = "task-";
 let loggedUser: User | null = null;
-let chosenProject: Project | null = null;
+let chosenProject: IProject | null = null;
 
 loginForm!.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -97,18 +99,18 @@ storyCreateForm!.addEventListener("submit", function (e) {
   onNewStory(e);
 });
 
-type Project = {
-  id: string;
-  name: string;
-  description: string;
-};
+// type Project = {
+//   id: string;
+//   name: string;
+//   description: string;
+// };
 
 type Story = {
   id: string;
   name: string;
   description: string;
   priority: Priority;
-  project: Project;
+  project: IProject;
   createdDate: Date;
   status: Status;
   owner: User;
@@ -236,20 +238,19 @@ function onNewProject(e: Event) {
   showProjects();
 }
 
-function saveProject(project: Project) {
+function saveProject(project: IProject) {
   localStorage.setItem(project.id, JSON.stringify(project));
 }
 
-function createProject(name: string, description: string): Project {
-  const id = "project-" + self.crypto.randomUUID();
-  return {
-    id,
+function createProject(name: string, description: string): IProject {
+  // const id = "project-" + self.crypto.randomUUID();
+  return new Project({
     name,
     description,
-  };
+  });
 }
 
-function showProjects(): void {
+async function showProjects(): Promise<void> {
   toggleContainerNightMode();
   projectsContainer!.innerHTML = "";
   // for (const key of Object.keys(localStorage)) {
@@ -260,22 +261,26 @@ function showProjects(): void {
   //     }
   //   }
   // }
-  const projects: Project[] = fetchProjects();
-  projects.forEach((project) => {
-    showSingleProject(project);
-  });
+  try {
+    const projects = await fetchProjects();
+    projects.forEach((project) => {
+      showSingleProject(project);
+    });
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+  }
 }
 
-async function fetchProjects(): Promise<Project> {
+async function fetchProjects(): Promise<IProject[]> {
   try {
     const response = await fetch("http://localhost:3000/ManageMeDB/project/");
     if (!response.ok) {
-      throw new Error(`Http error. status: ${response.status}`);
+      throw new Error(`HTTP error. Status: ${response.status}`);
     }
-    const projects: Project[] = await response.json();
+    const projects: IProject[] = await response.json();
     return projects;
-  } catch (error: any) {
-    console.error("Failed to fetch projects: ", error);
+  } catch (error) {
+    console.error("Failed to fetch projects:", error);
     throw error;
   }
 }
@@ -291,7 +296,7 @@ function toggleProjectsElementsVisibility() {
   projectsH3!.classList.toggle("hidden-element");
 }
 
-function showSingleProject(project: Project): void {
+function showSingleProject(project: IProject): void {
   let projectDiv = document.createElement("div");
   let projectSpan = document.createElement("span");
   let deleteProjectBtn = document.createElement("button");
@@ -373,7 +378,7 @@ function toggleProjects(): void {
 }
 
 function updateProject(
-  project: Project,
+  project: IProject,
   projectDiv: HTMLDivElement,
   projectSpan: HTMLSpanElement
 ) {
@@ -413,7 +418,7 @@ function updateProject(
 }
 
 function handleSaveUpdatedProject(
-  project: Project,
+  project: IProject,
   name: string,
   description: string
 ) {
@@ -422,11 +427,11 @@ function handleSaveUpdatedProject(
 }
 
 function saveUpdatedProject(
-  project: Project,
+  project: IProject,
   name: string,
   description: string
 ) {
-  let retrievedProject: Project | null = null;
+  let retrievedProject: IProject | null = null;
   const storedProject = localStorage.getItem(project.id);
 
   if (storedProject) {
@@ -438,16 +443,16 @@ function saveUpdatedProject(
   localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
 }
 
-function getProject(projectId: string): Project | null {
-  const projectString = localStorage.getItem(`${projectId}`);
-  if (projectString) {
-    const projectData = JSON.parse(projectString);
-    return {
-      id: projectData.id,
-      name: projectData.name,
-      description: projectData.description,
-    };
-  }
+function getProject(projectId: string): IProject | null {
+  // const projectString = localStorage.getItem(`${projectId}`);
+  // if (projectString) {
+  //   const projectData = JSON.parse(projectString);
+  //   return {
+  //     // _id: projectData.id,
+  //     name: projectData.name,
+  //     description: projectData.description,
+  //   };
+  // }
   return null;
 }
 
@@ -500,13 +505,15 @@ function createStory(
   priority: Priority,
   status: Status
 ): Story {
-  const id = storiesKeyIdentifier + self.crypto.randomUUID();
+  // const id = storiesKeyIdentifier + self.crypto.randomUUID();
+  const id = "1"; //
   const project = chosenProject;
   const createdDate = new Date();
   const owner = loggedUser;
 
   if (project && owner)
     return {
+      // id,
       id,
       name,
       description,
@@ -979,7 +986,8 @@ function createTask(
   storyId: string,
   estimatedFinishDate: string
 ): TodoTask {
-  const id = tasksKeyIdentifier + self.crypto.randomUUID();
+  const id = (Math.random() + 1).toString(36).substring(7);
+  // const id = tasksKeyIdentifier + self.crypto.randomUUID();
   const createdDate = new Date();
   const owner = loggedUser;
 
@@ -1081,7 +1089,8 @@ function createUser(
   const user = localStorage.getItem(`user-${username}`);
   if (!user) {
     const user = new User(
-      self.crypto.randomUUID(),
+      // self.crypto.randomUUID(),
+      (Math.random() + 1).toString(36).substring(7),
       username,
       password,
       firstName,
