@@ -455,9 +455,12 @@ async function handleSaveUpdatedProject(
 
 async function saveUpdatedProject(
   project: IProject,
-  name: string,
-  description: string
+  newName: string,
+  newDescription: string
 ) {
+  const name = newName || project.name;
+  const description = newDescription || project.description;
+
   const updatedProject: Partial<IProject> = {
     _id: project._id,
     name,
