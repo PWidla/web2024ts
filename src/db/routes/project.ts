@@ -47,4 +47,43 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
+router.put("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+
+  try {
+    const updatedProject = await Project.findByIdAndUpdate(
+      id,
+      { name, description },
+      { new: true }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json(updatedProject);
+  } catch (error) {
+    console.error("Error updating project:", error);
+    res.status(500).json({ error: "Failed to update project" });
+  }
+});
+
+router.delete("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const deletedProject = await Project.findByIdAndDelete(id);
+
+    if (!deletedProject) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json({ message: "Project deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({ error: "Failed to delete project" });
+  }
+});
+
 module.exports = router;

@@ -316,12 +316,12 @@ function showSingleProject(project: IProject): void {
 
   projectSpan.innerHTML = `name: ${project.name}, description: ${project.description}`;
   projectSpan.addEventListener("click", () =>
-    markProjectOut(projectDiv, project.id)
+    markProjectOut(projectDiv, project._id)
   );
   deleteProjectBtn.classList.add("project-button");
   deleteProjectBtn.innerText = "Delete";
   deleteProjectBtn.addEventListener("click", () =>
-    handleDeleteClick(project.id)
+    handleDeleteClick(project._id)
   );
 
   updateProjectBtn.classList.add("project-button");
@@ -353,14 +353,30 @@ function markProjectOut(projectDiv: HTMLDivElement, projectId: string): void {
   projectDiv.classList.toggle("marked");
 }
 
-function handleDeleteClick(projectId: string) {
-  deleteProject(projectId);
+async function handleDeleteClick(projectId: string) {
+  await deleteProject(projectId);
   showProjects();
 }
 
-function deleteProject(projectId: string) {
-  localStorage.removeItem(projectId);
-  showProjects();
+async function deleteProject(projectId: string) {
+  console.log(projectId);
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/project/${projectId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    console.log("Project deleted successfully");
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    throw error;
+  }
 }
 
 function handleChooseProjectBtn(projectId: string) {
@@ -428,30 +444,48 @@ function updateProject(
   projectDiv.append(saveUpdatedProjectBtn);
 }
 
-function handleSaveUpdatedProject(
+async function handleSaveUpdatedProject(
   project: IProject,
   name: string,
   description: string
 ) {
-  saveUpdatedProject(project, name, description);
+  await saveUpdatedProject(project, name, description);
   showProjects();
 }
 
-function saveUpdatedProject(
+async function saveUpdatedProject(
   project: IProject,
   name: string,
   description: string
 ) {
-  let retrievedProject: IProject | null = null;
-  const storedProject = localStorage.getItem(project.id);
+  const updatedProject: Partial<IProject> = {
+    _id: project._id,
+    name,
+    description,
+  };
 
-  if (storedProject) {
-    retrievedProject = JSON.parse(storedProject);
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/project/${project._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedProject),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const updatedProjectData: IProject = await response.json();
+    return updatedProjectData;
+  } catch (error) {
+    console.error("Failed to update project:", error);
+    throw error;
   }
-  retrievedProject!.name = name;
-  retrievedProject!.description = description;
-
-  localStorage.setItem(retrievedProject!.id, JSON.stringify(retrievedProject!));
 }
 
 function getProject(projectId: string): IProject | null {
