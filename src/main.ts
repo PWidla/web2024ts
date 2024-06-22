@@ -1,3 +1,4 @@
+import { json } from "stream/consumers";
 import Project, { IProject } from "./db/models/project";
 
 const mainContainer = document.getElementById("main");
@@ -225,7 +226,7 @@ function getProjectFormData() {
   return { name, description };
 }
 
-function onNewProject(e: Event) {
+async function onNewProject(e: Event) {
   const { name, description } = getProjectFormData();
 
   if (!name || !description) {
@@ -234,16 +235,34 @@ function onNewProject(e: Event) {
   }
 
   const project = createProject(name, description);
-  saveProject(project);
+  await saveProject(project);
   showProjects();
 }
 
-function saveProject(project: IProject) {
-  localStorage.setItem(project.id, JSON.stringify(project));
+async function saveProject(project: IProject) {
+  console.log(JSON.stringify(project));
+  try {
+    const response = await fetch("http://localhost:3000/ManageMeDB/project/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(project),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const savedProject: IProject = await response.json();
+    return savedProject;
+  } catch (error) {
+    console.error("Failed to save project:", error);
+    throw error;
+  }
 }
 
 function createProject(name: string, description: string): IProject {
-  // const id = "project-" + self.crypto.randomUUID();
   return new Project({
     name,
     description,
@@ -253,14 +272,6 @@ function createProject(name: string, description: string): IProject {
 async function showProjects(): Promise<void> {
   toggleContainerNightMode();
   projectsContainer!.innerHTML = "";
-  // for (const key of Object.keys(localStorage)) {
-  //   if (key.startsWith("project")) {
-  //     const item = JSON.parse(localStorage.getItem(key) || "null");
-  //     if (item) {
-  //       showSingleProject(item);
-  //     }
-  //   }
-  // }
   try {
     const projects = await fetchProjects();
     projects.forEach((project) => {

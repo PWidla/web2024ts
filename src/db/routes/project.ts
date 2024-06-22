@@ -29,4 +29,22 @@ async function getProject(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+router.post("/", async (req: Request, res: Response) => {
+  const { name, description } = req.body;
+
+  try {
+    const newProject = new Project({
+      name,
+      description,
+    });
+
+    await newProject.save();
+
+    res.status(201).json(newProject);
+  } catch (error) {
+    console.error("Error creating project:", error);
+    res.status(500).json({ error: "Failed to create project" });
+  }
+});
+
 module.exports = router;
