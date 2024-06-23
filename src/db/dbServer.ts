@@ -7,6 +7,7 @@ require("./models/task");
 
 const projectRouter = require("./routes/project");
 const storyRouter = require("./routes/story");
+const userRouter = require("./routes/user");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,6 +29,7 @@ connectDB()
 
     app.use("/ManageMeDB/project", projectRouter);
     app.use("/ManageMeDB/story", storyRouter);
+    app.use("/ManageMeDB/user", userRouter);
   })
   .catch((error) => {
     console.error("Failed to connect to MongoDB:", error);

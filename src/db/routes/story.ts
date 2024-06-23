@@ -19,17 +19,6 @@ async function getStory(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// router.get("/", async (req: Request, res: Response) => {
-//   console.log("router get");
-//   try {
-//     // const stories = await Story.find().populate("project owner");
-//     const stories = await Story.find();
-//     res.json(stories);
-//   } catch (error: any) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
-
 router.get("/", async (req: Request, res: Response) => {
   const { projectId } = req.query;
 

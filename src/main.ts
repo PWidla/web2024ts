@@ -1,5 +1,6 @@
 import Project, { IProject } from "./db/models/project";
 import { Story, IStory, Priority, Status } from "./db/models/story";
+import { User, Role, IUser } from "./db/models/user";
 
 const mainContainer = document.getElementById("main");
 const toggleNightModeBtn = document.getElementById("toggle-night-mode-btn");
@@ -69,9 +70,7 @@ const loginFormContainer = document.getElementById("login-form-container");
 
 let nightModeOn = false;
 
-const storiesKeyIdentifier = "stories-";
-const tasksKeyIdentifier = "task-";
-let loggedUser: User | null = null;
+let loggedUser: typeof User | null = null;
 let chosenProject: IProject | null = null;
 
 loginForm!.addEventListener("submit", function (e) {
@@ -93,23 +92,6 @@ storyCreateForm!.addEventListener("submit", function (e) {
   e.preventDefault();
   onNewStory(e);
 });
-
-// type Project = {
-//   id: string;
-//   name: string;
-//   description: string;
-// };
-
-// type Story = {
-//   id: string;
-//   name: string;
-//   description: string;
-//   priority: Priority;
-//   project: IProject;
-//   createdDate: Date;
-//   status: Status;
-//   owner: User;
-// };
 
 type TodoTask = {
   id: string; //?
@@ -149,65 +131,47 @@ type DoneTask = {
   assigneeId: string;
 };
 
-// enum Priority {
-//   Low = "Low",
-//   Medium = "Medium",
-//   High = "High",
+// class User {
+//   id: string;
+//   username: string;
+//   password: string;
+//   firstName: string;
+//   lastName: string;
+//   loggedIn: boolean;
+//   role: Role;
+
+//   constructor(
+//     id: string,
+//     username: string,
+//     password: string,
+//     firstName: string,
+//     lastName: string,
+//     role: Role
+//   ) {
+//     this.id = id;
+//     this.username = username;
+//     this.password = password;
+//     this.firstName = firstName;
+//     this.lastName = lastName;
+//     this.loggedIn = false;
+//     this.role = role;
+//   }
+
+//   login(): void {
+//     loggedUser = this;
+//     this.loggedIn = true;
+//     toggleLoginFormVisibility();
+//     toggleProjectsElementsVisibility();
+//     showProjects();
+//   }
+
+//   logout(): void {
+//     loggedUser = null;
+//     this.loggedIn = false;
+//     toggleLoginFormVisibility();
+//     toggleProjectsElementsVisibility();
+//   }
 // }
-
-// enum Status {
-//   ToDo = "ToDo",
-//   Doing = "Doing",
-//   Done = "Done",
-// }
-
-enum Role {
-  Admin = "Admin",
-  DevOps = "DevOps",
-  Developer = "Developer",
-}
-
-class User {
-  id: string;
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  loggedIn: boolean;
-  role: Role;
-
-  constructor(
-    id: string,
-    username: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    role: Role
-  ) {
-    this.id = id;
-    this.username = username;
-    this.password = password;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.loggedIn = false;
-    this.role = role;
-  }
-
-  login(): void {
-    loggedUser = this;
-    this.loggedIn = true;
-    toggleLoginFormVisibility();
-    toggleProjectsElementsVisibility();
-    showProjects();
-  }
-
-  logout(): void {
-    loggedUser = null;
-    this.loggedIn = false;
-    toggleLoginFormVisibility();
-    toggleProjectsElementsVisibility();
-  }
-}
 
 function getProjectFormData() {
   const nameInput = document.getElementById("project-name") as HTMLInputElement;
@@ -1184,86 +1148,161 @@ function createUser(
   password: string,
   firstName: string,
   lastName: string,
-  role: Role,
-  id?: string
-): void {
-  const user = localStorage.getItem(`user-${username}`);
-  if (!user) {
-    const user = new User(
-      // self.crypto.randomUUID(),
-      (Math.random() + 1).toString(36).substring(7),
-      username,
-      password,
-      firstName,
-      lastName,
-      role
-    );
-    localStorage.setItem(`user-${username}`, JSON.stringify(user));
-    return;
-  }
+  role: Role
+): IUser {
+  const loggedIn = false;
+  // const user = localStorage.getItem(`user-${username}`);
+  return new User({
+    username,
+    password,
+    loggedIn,
+    firstName,
+    lastName,
+    role,
+  });
   // alert("User with this username alreadt exists");
 }
 
-function getUserByUsername(username: string): User | null {
-  const userString = localStorage.getItem(`user-${username}`);
-  if (userString) {
-    const userData = JSON.parse(userString);
-    return new User(
-      userData.id,
-      userData.username,
-      userData.password,
-      userData.firstName,
-      userData.lastName,
-      userData.Role
-    );
-  }
-  return null;
-}
+// function getUserByUsername(username: string): User | null {
+//   const userString = localStorage.getItem(`user-${username}`);
+//   if (userString) {
+//     const userData = JSON.parse(userString);
+//     return new User(
+//       userData.id,
+//       userData.username,
+//       userData.password,
+//       userData.firstName,
+//       userData.lastName,
+//       userData.Role
+//     );
+//   }
+//   return null;
+// }
 
-function getUserById(userId: string) {
-  const users: User[] = [];
+// function getUserById(userId: string) {
+//   const users: User[] = [];
 
-  for (const key of Object.keys(localStorage)) {
-    if (key.startsWith("user")) {
-      const userData = localStorage.getItem(key);
-      if (userData) {
-        const user: User = JSON.parse(userData);
-        if (typeof user === "object" && user !== null) {
-          users.push(user);
-        }
-      }
+//   for (const key of Object.keys(localStorage)) {
+//     if (key.startsWith("user")) {
+//       const userData = localStorage.getItem(key);
+//       if (userData) {
+//         const user: User = JSON.parse(userData);
+//         if (typeof user === "object" && user !== null) {
+//           users.push(user);
+//         }
+//       }
+//     }
+//   }
+
+//   return users.find((user) => user.id == userId);
+// }
+
+async function saveUser(user: IUser) {
+  try {
+    const response = await fetch("http://localhost:3000/ManageMeDB/user/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
     }
-  }
 
-  return users.find((user) => user.id == userId);
+    const savedUser: IUser = await response.json();
+    return savedUser;
+  } catch (error) {
+    console.error("Failed to save user:", error);
+    throw error;
+  }
 }
 
-function mockUsers(): void {
-  createUser(
+async function mockUsers(): Promise<void> {
+  const admin: IUser = await createUser(
     "admin1",
     "adminpwd",
     "AdminFirstName",
     "AdminLastName",
-    Role.Admin,
-    "667737f4f9b8bc1f1d99ad95"
+    Role.Admin
+    // "667737f4f9b8bc1f1d99ad95"
   );
-  createUser(
+  console.log(admin);
+  await saveUser(admin);
+
+  const devops: IUser = await createUser(
     "devops1",
     "devopspwd",
     "DevOpsFirstName",
     "DevOpsLastName",
     Role.DevOps
   );
-  createUser(
+  await saveUser(devops);
+
+  const dev: IUser = await createUser(
     "dev1",
     "devpwd",
     "DeveloperFirstName",
     "DeveloperLastName",
     Role.Developer
   );
-  const user = getUserByUsername("admin1");
-  user!.login();
+  await saveUser(dev);
+  console.log("users");
+  console.log(admin);
+  console.log(devops);
+  console.log(dev);
+  // const user = getUserByUsername("admin1");
+  await userLoginLogout(admin, true);
+  console.log("updated admin");
+  console.log(admin);
 }
+
+async function userLoginLogout(user: IUser, logIn: boolean) {
+  const loggedIn = logIn;
+
+  const updatedUser: Partial<IUser> = {
+    loggedIn,
+  };
+
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/user/${user._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedUser),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const savedUser: IUser = await response.json();
+    return savedUser;
+  } catch (error) {
+    console.error("Failed to save user:", error);
+    throw error;
+  }
+}
+
+// login(): void {
+//   loggedUser = this;
+//   this.loggedIn = true;
+//   toggleLoginFormVisibility();
+//   toggleProjectsElementsVisibility();
+//   showProjects();
+// }
+
+// logout(): void {
+//   loggedUser = null;
+//   this.loggedIn = false;
+//   toggleLoginFormVisibility();
+//   toggleProjectsElementsVisibility();
+// }
 
 function getLoginFormData() {
   const usernameInput = document.getElementById(
@@ -1350,4 +1389,5 @@ showStoriesBtn?.addEventListener("click", handleShowStoriesBtn);
 toggleNightModeBtn!.addEventListener("click", handleToggleNightMode);
 
 mockUsers();
+// await mockUsers();
 // showProjects();

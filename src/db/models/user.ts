@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export enum Role {
+enum Role {
   Admin = "Admin",
   DevOps = "DevOps",
   Developer = "Developer",
@@ -29,4 +29,4 @@ const UserSchema: Schema = new Schema(
 
 const User = mongoose.model<IUser>("User", UserSchema);
 
-export default User;
+export { User, Role };
