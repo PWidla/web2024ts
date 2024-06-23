@@ -26,7 +26,7 @@ export interface IStory extends Document {
 
 const StorySchema: Schema = new Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true },
     description: { type: String, required: true },
     priority: { type: String, enum: Object.values(Priority), required: true },
     project: { type: Schema.Types.ObjectId, ref: "Project", required: true },

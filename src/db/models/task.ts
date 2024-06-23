@@ -38,7 +38,7 @@ interface IDoneTask extends ITaskBase {
 }
 
 const TaskSchema: Schema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, unique: true },
   description: { type: String, required: true },
   priority: { type: String, enum: Object.values(Priority), required: true },
   storyId: { type: Schema.Types.ObjectId, ref: "Story", required: true },

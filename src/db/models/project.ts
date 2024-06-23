@@ -7,7 +7,7 @@ export interface IProject extends Document {
 
 const ProjectSchema: Schema = new Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true },
     description: { type: String, required: true },
   },
   { collection: "project" }
