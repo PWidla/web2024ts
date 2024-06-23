@@ -40,4 +40,4 @@ const StorySchema: Schema = new Schema(
 
 const Story = mongoose.model<IStory>("Story", StorySchema);
 
-export default Story;
+export { Story, Priority, Status };

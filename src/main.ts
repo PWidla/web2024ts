@@ -1,6 +1,5 @@
-import { json } from "stream/consumers";
 import Project, { IProject } from "./db/models/project";
-import Story, { IStory } from "./db/models/story";
+import { Story, IStory, Priority, Status } from "./db/models/story";
 
 const mainContainer = document.getElementById("main");
 const toggleNightModeBtn = document.getElementById("toggle-night-mode-btn");
@@ -101,16 +100,16 @@ storyCreateForm!.addEventListener("submit", function (e) {
 //   description: string;
 // };
 
-type Story = {
-  id: string;
-  name: string;
-  description: string;
-  priority: Priority;
-  project: IProject;
-  createdDate: Date;
-  status: Status;
-  owner: User;
-};
+// type Story = {
+//   id: string;
+//   name: string;
+//   description: string;
+//   priority: Priority;
+//   project: IProject;
+//   createdDate: Date;
+//   status: Status;
+//   owner: User;
+// };
 
 type TodoTask = {
   id: string; //?
@@ -150,17 +149,17 @@ type DoneTask = {
   assigneeId: string;
 };
 
-enum Priority {
-  Low = "Low",
-  Medium = "Medium",
-  High = "High",
-}
+// enum Priority {
+//   Low = "Low",
+//   Medium = "Medium",
+//   High = "High",
+// }
 
-enum Status {
-  ToDo = "ToDo",
-  Doing = "Doing",
-  Done = "Done",
-}
+// enum Status {
+//   ToDo = "ToDo",
+//   Doing = "Doing",
+//   Done = "Done",
+// }
 
 enum Role {
   Admin = "Admin",
@@ -528,6 +527,8 @@ async function onNewStory(e: Event) {
     priority as Priority,
     status as Status
   );
+  console.log("story we savin");
+  console.log(story);
   await saveStory(story as IStory);
   showStories();
 }
@@ -559,25 +560,29 @@ function createStory(
   description: string,
   priority: Priority,
   status: Status
-): Story {
-  // const id = storiesKeyIdentifier + self.crypto.randomUUID();
-  const id = "1"; //
+): IStory {
   const project = chosenProject;
   const createdDate = new Date();
-  const owner = loggedUser;
+  const owner = loggedUser; //poprawic jak bedzie przez api tworzenie ownera bo teraz sie nie pokrywa
 
-  if (project && owner)
-    return {
-      id,
+  console.log("Creating story with owner:", owner);
+
+  if (project && owner) {
+    const newStory = new Story({
       name,
       description,
       priority,
-      project,
+      project: project._id,
       createdDate,
       status,
-      owner,
-    };
-  throw new Error("Unable to create story.");
+      // owner: owner.id,
+      owner: "667737f4f9b8bc1f1d99ad95",
+    });
+
+    return newStory;
+  } else {
+    throw new Error("Project or owner not found.");
+  }
 }
 
 async function fetchStories(chosenProjectId: string): Promise<IStory[]> {
@@ -714,10 +719,10 @@ function handleDeleteStoryClick(storyId: string) {
 function deleteStory(storyId: string) {
   const projectStoriesKey = "stories-" + chosenProject!.id;
   const storiesString = localStorage.getItem(projectStoriesKey);
-  const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
-  let newStories = stories.filter(({ id }) => id !== storyId);
+  // const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+  // let newStories = stories.filter(({ id }) => id !== storyId);
 
-  localStorage.setItem(projectStoriesKey, JSON.stringify(newStories));
+  // localStorage.setItem(projectStoriesKey, JSON.stringify(newStories));
   showStories();
 }
 
@@ -821,7 +826,8 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
     let singleTaskPriority = document.createElement("span");
     singleTaskPriority.innerHTML = `Task Priority: ${task.priority}`;
 
-    const storyName = getStoryName(task.storyId);
+    // const storyName = getStoryName(task.storyId);
+    const storyName = "story name mock";
     let singleTaskStory = document.createElement("span");
     singleTaskStory.innerHTML = `Story: ${storyName}`;
 
@@ -1016,15 +1022,15 @@ function hideKudoBoard() {
   doneTasksContainer!.innerHTML = "";
 }
 
-function getStoryName(storyId: string): string {
-  const key = storiesKeyIdentifier + chosenProject!.id;
-  const storiesString = localStorage.getItem(key);
-  const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
-  const story: Story | undefined = stories.find(
-    (story) => story.id === storyId
-  );
-  return story!.name;
-}
+// function getStoryName(storyId: string): string {
+//   // const key = storiesKeyIdentifier + chosenProject!.id;
+//   // const storiesString = localStorage.getItem(key);
+//   // const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
+//   // const story: Story | undefined = stories.find(
+//   //   (story) => story.id === storyId
+//   // );
+//   // return story!.name;
+// }
 
 function moveTaskBack(task: DoingTask | DoneTask) {
   if (task.status === Status.Doing) {
@@ -1173,7 +1179,8 @@ function createUser(
   password: string,
   firstName: string,
   lastName: string,
-  role: Role
+  role: Role,
+  id?: string
 ): void {
   const user = localStorage.getItem(`user-${username}`);
   if (!user) {
@@ -1232,7 +1239,8 @@ function mockUsers(): void {
     "adminpwd",
     "AdminFirstName",
     "AdminLastName",
-    Role.Admin
+    Role.Admin,
+    "667737f4f9b8bc1f1d99ad95"
   );
   createUser(
     "devops1",
