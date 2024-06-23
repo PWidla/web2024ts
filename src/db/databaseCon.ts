@@ -3,9 +3,10 @@ import "dotenv/config";
 
 const DB_CONN_STRING = "mongodb://0.0.0.0:27017/";
 const DB_NAME = "ManageMeDB";
-const USERS_COLLECTION_NAME = "users";
 
 const mongoUri = DB_CONN_STRING + DB_NAME;
+
+mongoose.set("strictQuery", false);
 
 export const connectDB = async () => {
   try {

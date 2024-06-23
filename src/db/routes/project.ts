@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
+import Project from "../models/project";
 const express = require("express");
 const router = express.Router();
-import Project from "../models/project";
 
 router.get("/", async (req: Request, res: Response) => {
   try {

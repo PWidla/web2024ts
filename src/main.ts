@@ -1,5 +1,6 @@
 import { json } from "stream/consumers";
 import Project, { IProject } from "./db/models/project";
+import Story, { IStory } from "./db/models/story";
 
 const mainContainer = document.getElementById("main");
 const toggleNightModeBtn = document.getElementById("toggle-night-mode-btn");
@@ -66,12 +67,6 @@ const closeModalBtn = document.getElementById("close-modal-btn");
 const submitTaskFormBtn = document.getElementById("submit-task-btn");
 //login form
 const loginFormContainer = document.getElementById("login-form-container");
-// const usernameInput = document.getElementById(
-//   "username-input"
-// ) as HTMLInputElement;
-// const passwordInput = document.getElementById(
-//   "password-input"
-// ) as HTMLInputElement;
 
 let nightModeOn = false;
 
@@ -333,7 +328,7 @@ function showSingleProject(project: IProject): void {
   chooseProjectBtn.classList.add("project-button");
   chooseProjectBtn.innerText = "Choose";
   chooseProjectBtn.addEventListener("click", () =>
-    handleChooseProjectBtn(project.id)
+    handleChooseProjectBtn(project._id)
   );
 
   projectDiv!.appendChild(projectSpan);
@@ -379,18 +374,21 @@ async function deleteProject(projectId: string) {
   }
 }
 
-function handleChooseProjectBtn(projectId: string) {
+async function handleChooseProjectBtn(projectId: string) {
   if (chosenProject && chosenProject.id != projectId) {
     chosenProject = null;
   }
 
-  chooseProject(projectId);
+  await chooseProject(projectId);
   showStories();
 }
 
-function chooseProject(projectId: string) {
-  chosenProject = getProject(projectId);
-  localStorage.setItem("chosenProject", JSON.stringify(chosenProject));
+async function chooseProject(projectId: string) {
+  console.log(projectId);
+  chosenProject = await fetchProject(projectId);
+  console.log(chosenProject);
+  console.log(projectId);
+  // localStorage.setItem("chosenProject", JSON.stringify(chosenProject));
   toggleStories();
   toggleProjects();
 }
@@ -491,17 +489,20 @@ async function saveUpdatedProject(
   }
 }
 
-function getProject(projectId: string): IProject | null {
-  // const projectString = localStorage.getItem(`${projectId}`);
-  // if (projectString) {
-  //   const projectData = JSON.parse(projectString);
-  //   return {
-  //     // _id: projectData.id,
-  //     name: projectData.name,
-  //     description: projectData.description,
-  //   };
-  // }
-  return null;
+async function fetchProject(projectId: string): Promise<IProject | null> {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/project/${projectId}`
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+    const project: IProject = await response.json();
+    return project;
+  } catch (error) {
+    console.error("Failed to fetch project:", error);
+    throw error;
+  }
 }
 
 function handleShowProjectsBtn() {
@@ -512,7 +513,6 @@ function handleShowProjectsBtn() {
 }
 
 //stories
-
 function getStoriesFormData() {
   const name: string = storyNameInput.value.trim();
   const description: string = storyDescriptionInput.value.trim();
@@ -521,7 +521,7 @@ function getStoriesFormData() {
   return { name, description, priority, status };
 }
 
-function onNewStory(e: Event) {
+async function onNewStory(e: Event) {
   const { name, description, priority, status } = getStoriesFormData();
 
   if (!name || !description || !priority || !status) {
@@ -535,16 +535,31 @@ function onNewStory(e: Event) {
     priority as Priority,
     status as Status
   );
-  saveStory(story as Story);
+  await saveStory(story as IStory);
   showStories();
 }
 
-function saveStory(story: Story) {
-  const key = storiesKeyIdentifier + chosenProject!.id;
-  const storiesString = localStorage.getItem(key);
-  let stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
-  stories.push(story);
-  localStorage.setItem(key, JSON.stringify(stories));
+async function saveStory(story: IStory): Promise<IStory> {
+  console.log(JSON.stringify(story));
+  try {
+    const response = await fetch("http://localhost:3000/ManageMeDB/story", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(story),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const savedStory: IStory = await response.json();
+    return savedStory;
+  } catch (error) {
+    console.error("Failed to save story:", error);
+    throw error;
+  }
 }
 
 function createStory(
@@ -561,7 +576,6 @@ function createStory(
 
   if (project && owner)
     return {
-      // id,
       id,
       name,
       description,
@@ -574,20 +588,38 @@ function createStory(
   throw new Error("Unable to create story.");
 }
 
-function getStories(): Story[] {
-  const storedChosenProject = JSON.parse(
-    localStorage.getItem("chosenProject") || "null"
+async function fetchStories(chosenProjectId: string): Promise<IStory[]> {
+  console.log("fetch stories");
+  console.log(chosenProjectId);
+  console.log(
+    `http://localhost:3000/ManageMeDB/story?projectId=${chosenProjectId}`
   );
-  const key = storiesKeyIdentifier + storedChosenProject!.id;
-  const storiesString = localStorage.getItem(key);
-  const allStories: Story[] = storiesString ? JSON.parse(storiesString) : [];
-  return allStories;
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/story?projectId=${chosenProjectId}`
+      // `http://localhost:3000/ManageMeDB/story/`
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+    const stories: IStory[] = await response.json();
+    console.log("stories fetched");
+    console.log(stories);
+    return stories;
+  } catch (error) {
+    console.error("Failed to fetch stories:", error);
+    throw error;
+  }
 }
 
-function showStories(): void {
-  const allStories = getStories();
+async function showStories(): Promise<void> {
+  console.log(chosenProject);
+  console.log("showstories");
+  console.log(chosenProject!._id);
+
+  const allStories = await fetchStories(chosenProject!._id);
   const selectedStatus = storyDropdown!.value;
-  let stories: Story[];
+  let stories: IStory[];
   if (selectedStatus == "All") {
     stories = allStories;
   } else {
@@ -595,7 +627,7 @@ function showStories(): void {
   }
   storiesContainer!.innerHTML = "";
 
-  stories.forEach((story: Story) => {
+  stories.forEach((story: IStory) => {
     let storyDiv = document.createElement("div");
     let storySpan = document.createElement("span");
     let deleteStoryBtn = document.createElement("button");
@@ -612,7 +644,7 @@ function showStories(): void {
     updateStoryBtn.classList.add("story-button");
     updateStoryBtn.innerText = "Update";
     updateStoryBtn.addEventListener("click", () =>
-      updateStory(story, storyDiv, storySpan)
+      handleUpdateStoryClick(story, storyDiv, storySpan)
     );
 
     storyDiv.appendChild(storySpan);
@@ -626,8 +658,8 @@ function markStoryOut(storyDiv: HTMLDivElement): void {
   storyDiv.classList.toggle("marked");
 }
 
-function updateStory(
-  story: Story,
+function handleUpdateStoryClick(
+  story: IStory,
   storyDiv: HTMLDivElement,
   storySpan: HTMLSpanElement
 ) {
@@ -646,21 +678,52 @@ function updateStory(
   storyDiv.appendChild(saveUpdatedProjectBtn);
 }
 
-function handleSaveUpdatedStory(story: Story): void {
-  let updatedStoryInput = getStoriesFormData();
-  story.name = updatedStoryInput.name;
-  story.description = updatedStoryInput.description;
-  story.priority = updatedStoryInput.priority as Priority;
-  story.status = updatedStoryInput.status as Status;
-
-  const key = storiesKeyIdentifier + chosenProject!.id;
-  const storiesString = localStorage.getItem(key);
-  const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
-  let newStories = stories.filter(({ id }) => id !== story.id);
-  newStories.push(story);
-
-  localStorage.setItem(key, JSON.stringify(newStories));
+async function handleSaveUpdatedStory(story: IStory): Promise<void> {
+  await saveUpdatedStory(story);
   showStories();
+}
+
+async function saveUpdatedStory(story: IStory): Promise<IStory> {
+  let updatedStoryInput = getStoriesFormData();
+  const name = updatedStoryInput.name;
+  const description = updatedStoryInput.description;
+  const priority = updatedStoryInput.priority as Priority;
+  const project = story.project;
+  const status = updatedStoryInput.status as Status;
+  const owner = story.owner;
+
+  const updatedStory = {
+    _id: story._id,
+    name,
+    description,
+    priority,
+    project,
+    status,
+    owner,
+  };
+
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/story/${story._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedStory),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const savedStory: IStory = await response.json();
+    return savedStory;
+  } catch (error) {
+    console.error("Failed to update story:", error);
+    throw error;
+  }
 }
 
 function handleDeleteStoryClick(storyId: string) {
@@ -701,14 +764,15 @@ function handleShowStoriesBtn() {
   toggleTasks();
 }
 
-function handleShowTasksBtn() {
+async function handleShowTasksBtn() {
   toggleStories();
   toggleTasks();
   const currentDate = new Date().toISOString().slice(0, 10);
   estimatedFinishDateInput.value = currentDate;
   estimatedFinishDateInput.min = currentDate;
   estimatedFinishDateInput.max = "2035-01-01";
-  const allStories = getStories();
+  console.log(chosenProject);
+  const allStories = await fetchStories(chosenProject?._id);
   let openStories = allStories.filter((s) => s.status != Status.Done);
   openStories.forEach((story) => {
     let optionElement = document.createElement("option");

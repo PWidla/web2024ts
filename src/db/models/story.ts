@@ -34,7 +34,8 @@ const StorySchema: Schema = new Schema(
     status: { type: String, enum: Object.values(Status), required: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
-  { timestamps: true }
+  { collection: "story" }
+  // { timestamps: true }
 );
 
 const Story = mongoose.model<IStory>("Story", StorySchema);

@@ -1,6 +1,12 @@
 import express from "express";
 import { connectDB } from "./databaseCon";
+require("./models/project");
+require("./models/story");
+require("./models/user");
+require("./models/task");
+
 const projectRouter = require("./routes/project");
+const storyRouter = require("./routes/story");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +27,7 @@ connectDB()
     });
 
     app.use("/ManageMeDB/project", projectRouter);
+    app.use("/ManageMeDB/story", storyRouter);
   })
   .catch((error) => {
     console.error("Failed to connect to MongoDB:", error);
