@@ -675,16 +675,13 @@ async function saveUpdatedStory(story: IStory): Promise<IStory> {
   const priority = updatedStoryInput.priority as Priority;
   const project = story.project;
   const status = updatedStoryInput.status as Status;
-  const owner = story.owner;
 
-  const updatedStory = {
-    _id: story._id,
+  const updatedStory: Partial<IStory> = {
     name,
     description,
     priority,
     project,
     status,
-    owner,
   };
 
   try {
