@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import Story from "../models/story";
+import { Story } from "../models/story";
 import mongoose from "mongoose";
 const express = require("express");
 const router = express.Router();

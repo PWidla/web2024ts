@@ -314,7 +314,7 @@ function showSingleProject(project: IProject): void {
   deleteProjectBtn.classList.add("project-button");
   deleteProjectBtn.innerText = "Delete";
   deleteProjectBtn.addEventListener("click", () =>
-    handleDeleteClick(project._id)
+    handleDeleteProjectClick(project._id)
   );
 
   updateProjectBtn.classList.add("project-button");
@@ -346,7 +346,7 @@ function markProjectOut(projectDiv: HTMLDivElement, projectId: string): void {
   projectDiv.classList.toggle("marked");
 }
 
-async function handleDeleteClick(projectId: string) {
+async function handleDeleteProjectClick(projectId: string) {
   await deleteProject(projectId);
   showProjects();
 }
@@ -623,7 +623,7 @@ async function showStories(): Promise<void> {
     deleteStoryBtn.classList.add("story-button");
     deleteStoryBtn.innerText = "Delete";
     deleteStoryBtn.addEventListener("click", () =>
-      handleDeleteStoryClick(story.id)
+      handleDeleteStoryClick(story._id)
     );
 
     updateStoryBtn.classList.add("story-button");
@@ -711,19 +711,27 @@ async function saveUpdatedStory(story: IStory): Promise<IStory> {
   }
 }
 
-function handleDeleteStoryClick(storyId: string) {
-  deleteStory(storyId);
-  showProjects();
+async function handleDeleteStoryClick(storyId: string) {
+  await deleteStory(storyId);
+  showStories();
 }
 
-function deleteStory(storyId: string) {
-  const projectStoriesKey = "stories-" + chosenProject!.id;
-  const storiesString = localStorage.getItem(projectStoriesKey);
-  // const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
-  // let newStories = stories.filter(({ id }) => id !== storyId);
+async function deleteStory(storyId: string) {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/story/${storyId}`,
+      {
+        method: "DELETE",
+      }
+    );
 
-  // localStorage.setItem(projectStoriesKey, JSON.stringify(newStories));
-  showStories();
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    throw error;
+  }
 }
 
 function toggleStories(): void {
@@ -760,7 +768,7 @@ async function handleShowTasksBtn() {
   let openStories = allStories.filter((s) => s.status != Status.Done);
   openStories.forEach((story) => {
     let optionElement = document.createElement("option");
-    optionElement.value = story.id;
+    optionElement.value = story._id;
     optionElement.text = story.name;
 
     taskStoryInput.appendChild(optionElement);
@@ -1027,7 +1035,7 @@ function hideKudoBoard() {
 //   // const storiesString = localStorage.getItem(key);
 //   // const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
 //   // const story: Story | undefined = stories.find(
-//   //   (story) => story.id === storyId
+//   //   (story) => story._id === storyId
 //   // );
 //   // return story!.name;
 // }
