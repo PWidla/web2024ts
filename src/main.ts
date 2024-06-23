@@ -235,7 +235,6 @@ async function onNewProject(e: Event) {
 }
 
 async function saveProject(project: IProject) {
-  console.log(JSON.stringify(project));
   try {
     const response = await fetch("http://localhost:3000/ManageMeDB/project/", {
       method: "POST",
@@ -354,7 +353,6 @@ async function handleDeleteClick(projectId: string) {
 }
 
 async function deleteProject(projectId: string) {
-  console.log(projectId);
   try {
     const response = await fetch(
       `http://localhost:3000/ManageMeDB/project/${projectId}`,
@@ -366,8 +364,6 @@ async function deleteProject(projectId: string) {
     if (!response.ok) {
       throw new Error(`HTTP error. Status: ${response.status}`);
     }
-
-    console.log("Project deleted successfully");
   } catch (error) {
     console.error("Failed to delete project:", error);
     throw error;
@@ -384,10 +380,7 @@ async function handleChooseProjectBtn(projectId: string) {
 }
 
 async function chooseProject(projectId: string) {
-  console.log(projectId);
   chosenProject = await fetchProject(projectId);
-  console.log(chosenProject);
-  console.log(projectId);
   // localStorage.setItem("chosenProject", JSON.stringify(chosenProject));
   toggleStories();
   toggleProjects();
@@ -540,7 +533,6 @@ async function onNewStory(e: Event) {
 }
 
 async function saveStory(story: IStory): Promise<IStory> {
-  console.log(JSON.stringify(story));
   try {
     const response = await fetch("http://localhost:3000/ManageMeDB/story", {
       method: "POST",
@@ -589,22 +581,14 @@ function createStory(
 }
 
 async function fetchStories(chosenProjectId: string): Promise<IStory[]> {
-  console.log("fetch stories");
-  console.log(chosenProjectId);
-  console.log(
-    `http://localhost:3000/ManageMeDB/story?projectId=${chosenProjectId}`
-  );
   try {
     const response = await fetch(
       `http://localhost:3000/ManageMeDB/story?projectId=${chosenProjectId}`
-      // `http://localhost:3000/ManageMeDB/story/`
     );
     if (!response.ok) {
       throw new Error(`HTTP error. Status: ${response.status}`);
     }
     const stories: IStory[] = await response.json();
-    console.log("stories fetched");
-    console.log(stories);
     return stories;
   } catch (error) {
     console.error("Failed to fetch stories:", error);
@@ -613,10 +597,6 @@ async function fetchStories(chosenProjectId: string): Promise<IStory[]> {
 }
 
 async function showStories(): Promise<void> {
-  console.log(chosenProject);
-  console.log("showstories");
-  console.log(chosenProject!._id);
-
   const allStories = await fetchStories(chosenProject!._id);
   const selectedStatus = storyDropdown!.value;
   let stories: IStory[];
@@ -771,7 +751,6 @@ async function handleShowTasksBtn() {
   estimatedFinishDateInput.value = currentDate;
   estimatedFinishDateInput.min = currentDate;
   estimatedFinishDateInput.max = "2035-01-01";
-  console.log(chosenProject);
   const allStories = await fetchStories(chosenProject?._id);
   let openStories = allStories.filter((s) => s.status != Status.Done);
   openStories.forEach((story) => {
@@ -793,7 +772,6 @@ function showTasks() {
   const tasks = Object.keys(localStorage)
     .filter((key) => key.startsWith("task"))
     .map((key) => JSON.parse(localStorage[key]));
-  console.log(tasks);
 
   tasks.forEach((task) => {
     let singleTaskDiv = document.createElement("div");
@@ -802,7 +780,6 @@ function showTasks() {
     singleTaskName.innerHTML = `Task name: ${task.name}`;
 
     let singleTaskAssignee = document.createElement("span");
-    console.log("task assignee " + task.assigneeId);
 
     const assignee = getUserById(task.assigneeId);
     singleTaskAssignee.innerHTML = assignee

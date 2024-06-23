@@ -7,7 +7,6 @@ const router = express.Router();
 // const router = express.Router();
 
 async function getStory(req: Request, res: Response, next: NextFunction) {
-  console.log("getStory");
   try {
     const story = await Story.findById(req.params.id).populate("project owner");
     if (!story) {
@@ -32,17 +31,13 @@ async function getStory(req: Request, res: Response, next: NextFunction) {
 // });
 
 router.get("/", async (req: Request, res: Response) => {
-  console.log("req.query");
-  console.log(req.query);
   const { projectId } = req.query;
 
   try {
     const query = projectId
       ? { project: new mongoose.Types.ObjectId(projectId as string) }
       : {};
-    console.log("Query:", query);
     const stories = await Story.find(query).populate("project owner");
-    console.log("Stories found:", stories);
     res.json(stories);
   } catch (error: any) {
     console.error("Error fetching stories:", error);
