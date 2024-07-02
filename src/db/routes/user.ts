@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/", async (req: Request, res: Response) => {
   const { username, password, firstName, lastName, loggedIn, role } = req.body;
-
+  console.log("user post");
   try {
     const newUser = new User({
       username,
@@ -26,14 +26,13 @@ router.post("/", async (req: Request, res: Response) => {
 
 router.put("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { username, password, firstName, lastName, loggedIn, role } = req.body;
-
+  const updatedFields = req.body;
+  console.log("user put");
+  console.log(updatedFields);
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { username, password, firstName, lastName, loggedIn, role },
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(id, updatedFields, {
+      new: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });

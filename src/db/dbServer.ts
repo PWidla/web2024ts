@@ -11,8 +11,10 @@ const userRouter = require("./routes/user");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

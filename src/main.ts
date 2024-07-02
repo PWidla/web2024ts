@@ -1198,6 +1198,9 @@ function createUser(
 // }
 
 async function saveUser(user: IUser) {
+  console.log("save user");
+  console.log(user);
+  console.log(JSON.stringify(user));
   try {
     const response = await fetch("http://localhost:3000/ManageMeDB/user/", {
       method: "POST",
@@ -1212,6 +1215,9 @@ async function saveUser(user: IUser) {
     }
 
     const savedUser: IUser = await response.json();
+    console.log("saveUser");
+    console.log(savedUser._id);
+
     return savedUser;
   } catch (error) {
     console.error("Failed to save user:", error);
@@ -1228,8 +1234,7 @@ async function mockUsers(): Promise<void> {
     Role.Admin
     // "667737f4f9b8bc1f1d99ad95"
   );
-  console.log(admin);
-  await saveUser(admin);
+  const savedAdmin = await saveUser(admin);
 
   const devops: IUser = await createUser(
     "devops1",
@@ -1238,6 +1243,7 @@ async function mockUsers(): Promise<void> {
     "DevOpsLastName",
     Role.DevOps
   );
+
   await saveUser(devops);
 
   const dev: IUser = await createUser(
@@ -1247,24 +1253,27 @@ async function mockUsers(): Promise<void> {
     "DeveloperLastName",
     Role.Developer
   );
+
   await saveUser(dev);
-  console.log("users");
-  console.log(admin);
-  console.log(devops);
-  console.log(dev);
+
   // const user = getUserByUsername("admin1");
-  await userLoginLogout(admin, true);
+  await handleUserLoginLogout(savedAdmin, true);
   console.log("updated admin");
-  console.log(admin);
 }
 
-async function userLoginLogout(user: IUser, logIn: boolean) {
+async function handleUserLoginLogout(user: IUser, logIn: boolean) {
   const loggedIn = logIn;
 
   const updatedUser: Partial<IUser> = {
     loggedIn,
   };
 
+  await updateUserLogIn(user, updatedUser);
+
+  toggleLogInForm();
+}
+
+async function updateUserLogIn(user: IUser, updatedUser: Partial<IUser>) {
   try {
     const response = await fetch(
       `http://localhost:3000/ManageMeDB/user/${user._id}`,
@@ -1289,20 +1298,11 @@ async function userLoginLogout(user: IUser, logIn: boolean) {
   }
 }
 
-// login(): void {
-//   loggedUser = this;
-//   this.loggedIn = true;
-//   toggleLoginFormVisibility();
-//   toggleProjectsElementsVisibility();
-//   showProjects();
-// }
-
-// logout(): void {
-//   loggedUser = null;
-//   this.loggedIn = false;
-//   toggleLoginFormVisibility();
-//   toggleProjectsElementsVisibility();
-// }
+function toggleLogInForm(): void {
+  toggleLoginFormVisibility();
+  toggleProjectsElementsVisibility();
+  showProjects();
+}
 
 function getLoginFormData() {
   const usernameInput = document.getElementById(
