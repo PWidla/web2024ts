@@ -1225,40 +1225,69 @@ async function saveUser(user: IUser) {
   }
 }
 
+async function fetchUsers() {
+  try {
+    const response = await fetch("http://localhost:3000/ManageMeDB/user/");
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const users: IUser[] = await response.json();
+    return users;
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    throw error;
+  }
+}
+
 async function mockUsers(): Promise<void> {
-  const admin: IUser = await createUser(
-    "admin1",
-    "adminpwd",
-    "AdminFirstName",
-    "AdminLastName",
-    Role.Admin
-    // "667737f4f9b8bc1f1d99ad95"
+  const existingUsers = await fetchUsers();
+
+  let admin: IUser | undefined = existingUsers.find(
+    (u) => u.username == "admin1"
   );
-  const savedAdmin = await saveUser(admin);
+  if (admin == null) {
+    const newAdmin = await createUser(
+      "admin1",
+      "adminpwd",
+      "AdminFirstName",
+      "AdminLastName",
+      Role.Admin
+    );
 
-  const devops: IUser = await createUser(
-    "devops1",
-    "devopspwd",
-    "DevOpsFirstName",
-    "DevOpsLastName",
-    Role.DevOps
+    admin = await saveUser(newAdmin);
+  }
+
+  let devops: IUser | undefined = existingUsers.find(
+    (u) => u.username == "devops1"
   );
+  if (devops == null) {
+    devops = await createUser(
+      "devops1",
+      "devopspwd",
+      "DevOpsFirstName",
+      "DevOpsLastName",
+      Role.DevOps
+    );
 
-  await saveUser(devops);
+    await saveUser(devops);
+  }
 
-  const dev: IUser = await createUser(
-    "dev1",
-    "devpwd",
-    "DeveloperFirstName",
-    "DeveloperLastName",
-    Role.Developer
-  );
+  let dev: IUser | undefined = existingUsers.find((u) => u.username == "dev1");
+  if (dev == null) {
+    dev = await createUser(
+      "dev1",
+      "devpwd",
+      "DeveloperFirstName",
+      "DeveloperLastName",
+      Role.Developer
+    );
 
-  await saveUser(dev);
+    await saveUser(dev);
+  }
 
-  // const user = getUserByUsername("admin1");
-  await handleUserLoginLogout(savedAdmin, true);
-  console.log("updated admin");
+  await handleUserLoginLogout(admin, true);
 }
 
 async function handleUserLoginLogout(user: IUser, logIn: boolean) {
