@@ -881,7 +881,7 @@ async function showModal(task: ITask) {
       finishTaskBtn.id = "finishTaskBtn";
       finishTaskBtn.innerHTML = "Mark as done";
       finishTaskBtn.addEventListener("click", function () {
-        const updatedTask = updateTaskToDone(task as DoingTask);
+        const updatedTask = updateTaskToDone(task);
         if (updatedTask) {
           saveTask(updatedTask);
         }
@@ -907,9 +907,7 @@ async function showModal(task: ITask) {
       let moveTaskBackBtn = document.createElement("button");
       moveTaskBackBtn.id = "moveTaskBackBtn";
       moveTaskBackBtn.innerHTML = "Move task to previous stage";
-      moveTaskBackBtn.addEventListener("click", () =>
-        moveTaskBack(task as DoingTask | DoneTask)
-      );
+      moveTaskBackBtn.addEventListener("click", () => moveTaskBack(task));
 
       modalContentDiv.appendChild(moveTaskBackBtn);
     }
@@ -1006,7 +1004,7 @@ async function updateTask(taskId: string, task: ITask) {
   }
 }
 
-function fillFormWithTaskData(task: TodoTask | DoingTask | DoneTask) {
+function fillFormWithTaskData(task: ITask) {
   taskNameInput.value = task.name;
   taskDescriptionInput.value = task.description;
   taskPriorityInput.value = task.priority;
@@ -1031,7 +1029,7 @@ function hideKudoBoard() {
   doneTasksContainer!.innerHTML = "";
 }
 
-function moveTaskBack(task: DoingTask | DoneTask) {
+function moveTaskBack(task: ITask) {
   if (task.status === Status.Doing) {
     const updatedTask = updateTaskToToDo(task);
     if (updatedTask) {
@@ -1089,20 +1087,20 @@ function createTask(
   throw new Error("Unable to create story.");
 }
 
-function updateTaskToToDo(task: DoingTask): DoingTask {
+function updateTaskToToDo(task: ITask): ITask {
   return {
     ...task,
     status: Status.ToDo,
     assigneeId: "",
-  };
+  } as ITask;
 }
 
-function updateTaskToDoing(task: TodoTask | DoneTask): DoingTask | null {
+function updateTaskToDoing(task: ITask): ITask | null {
   if (task.status === Status.Done) {
     return {
-      ...(task as DoneTask),
+      ...task,
       status: Status.Doing,
-    };
+    } as ITask;
   }
 
   const selectedAssignee = document.getElementById(
@@ -1116,22 +1114,22 @@ function updateTaskToDoing(task: TodoTask | DoneTask): DoingTask | null {
     return null;
   }
 
-  const doingTask: DoingTask = {
+  const doingTask: ITask = {
     ...task,
     startedDate: new Date(),
     status: Status.Doing,
     assigneeId: selectedAssignee!.value,
-  };
+  } as ITask;
 
   return doingTask;
 }
 
-function updateTaskToDone(task: DoingTask): DoneTask | null {
-  const doneTask: DoneTask = {
+function updateTaskToDone(task: ITask): ITask | null {
+  const doneTask: ITask = {
     ...task,
     finishedDate: new Date(),
     status: Status.Done,
-  };
+  } as ITask;
 
   return doneTask;
 }
