@@ -868,10 +868,10 @@ async function showModal(task: ITask) {
     if (task.status !== "Done") {
       saveTaskBtn.id = "saveTaskBtn";
       saveTaskBtn.innerHTML = "Save";
-      saveTaskBtn.addEventListener("click", function () {
+      saveTaskBtn.addEventListener("click", async function () {
         const updatedTask = updateTaskToDoing(task);
         if (updatedTask) {
-          saveTask(updatedTask);
+          await updateTask(task._id, updatedTask);
         }
       });
     }
@@ -880,10 +880,10 @@ async function showModal(task: ITask) {
     if (task.status === "Doing") {
       finishTaskBtn.id = "finishTaskBtn";
       finishTaskBtn.innerHTML = "Mark as done";
-      finishTaskBtn.addEventListener("click", function () {
+      finishTaskBtn.addEventListener("click", async function () {
         const updatedTask = updateTaskToDone(task);
         if (updatedTask) {
-          saveTask(updatedTask);
+          await updateTask(task._id, updatedTask);
         }
       });
     }
@@ -907,7 +907,10 @@ async function showModal(task: ITask) {
       let moveTaskBackBtn = document.createElement("button");
       moveTaskBackBtn.id = "moveTaskBackBtn";
       moveTaskBackBtn.innerHTML = "Move task to previous stage";
-      moveTaskBackBtn.addEventListener("click", () => moveTaskBack(task));
+      moveTaskBackBtn.addEventListener(
+        "click",
+        async () => await moveTaskBack(task)
+      );
 
       modalContentDiv.appendChild(moveTaskBackBtn);
     }
@@ -1029,16 +1032,16 @@ function hideKudoBoard() {
   doneTasksContainer!.innerHTML = "";
 }
 
-function moveTaskBack(task: ITask) {
+async function moveTaskBack(task: ITask) {
   if (task.status === Status.Doing) {
     const updatedTask = updateTaskToToDo(task);
     if (updatedTask) {
-      saveTask(updatedTask);
+      await updateTask(task._id, updatedTask);
     }
   } else if (task.status === Status.Done) {
     const updatedTask = updateTaskToDoing(task);
     if (updatedTask) {
-      saveTask(updatedTask);
+      await updateTask(task._id, updatedTask);
     }
   }
 }
