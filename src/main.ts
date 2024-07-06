@@ -725,6 +725,8 @@ async function handleShowTasksBtn() {
   estimatedFinishDateInput.value = currentDate;
   estimatedFinishDateInput.min = currentDate;
   estimatedFinishDateInput.max = "2035-01-01";
+
+  taskStoryInput.innerHTML = "";
   const allStories = await fetchStories(chosenProject?._id);
   let openStories = allStories.filter((s) => s.status != Status.Done);
   openStories.forEach((story) => {
