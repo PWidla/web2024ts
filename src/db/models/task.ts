@@ -14,7 +14,7 @@ enum Status {
   Done = "Done",
 }
 
-interface ITask extends Document {
+export interface ITask extends Document {
   name: string;
   description: string;
   priority: Priority;
@@ -27,19 +27,24 @@ interface ITask extends Document {
   assigneeId: IUser["_id"];
 }
 
-const TaskSchema: Schema = new Schema({
-  name: { type: String, required: true, unique: true },
-  description: { type: String, required: true },
-  priority: { type: String, enum: Object.values(Priority), required: true },
-  storyId: { type: Schema.Types.ObjectId, ref: "Story", required: true },
-  estimatedFinishDate: { type: Date, required: true },
-  status: { type: String, enum: Object.values(Status), required: true },
-  createdDate: { type: Date, default: Date.now },
-  startedDate: { type: Date, required: false },
-  finishedDate: { type: Date, required: false },
-  assigneeId: { type: Schema.Types.ObjectId, ref: "User", required: false },
-});
+const TaskSchema: Schema = new Schema(
+  {
+    name: { type: String, required: true, unique: true },
+    description: { type: String, required: true },
+    priority: { type: String, enum: Object.values(Priority), required: true },
+    storyId: { type: Schema.Types.ObjectId, ref: "Story", required: true },
+    estimatedFinishDate: { type: Date, required: true },
+    status: { type: String, enum: Object.values(Status), required: true },
+    createdDate: { type: Date, default: Date.now },
+    startedDate: { type: Date, required: false },
+    finishedDate: { type: Date, required: false },
+    assigneeId: { type: Schema.Types.ObjectId, ref: "User", required: false },
+  },
+  {
+    collection: "task",
+  }
+);
 
-const Task = mongoose.model<ITask>("TodoTask", TaskSchema);
+const Task = mongoose.model<ITask>("Task", TaskSchema);
 
 export { Task };

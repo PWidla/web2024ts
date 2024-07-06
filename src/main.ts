@@ -1,6 +1,7 @@
 import Project, { IProject } from "./db/models/project";
 import { Story, IStory, Priority, Status } from "./db/models/story";
 import { User, Role, IUser } from "./db/models/user";
+import { Task, ITask } from "./db/models/task";
 
 const mainContainer = document.getElementById("main");
 const toggleNightModeBtn = document.getElementById("toggle-night-mode-btn");
@@ -93,43 +94,43 @@ storyCreateForm!.addEventListener("submit", function (e) {
   onNewStory(e);
 });
 
-type TodoTask = {
-  id: string; //?
-  name: string;
-  description: string;
-  priority: Priority;
-  storyId: string;
-  estimatedFinishDate: Date;
-  status: Status;
-  createdDate: Date;
-};
+// type TodoTask = {
+//   id: string; //?
+//   name: string;
+//   description: string;
+//   priority: Priority;
+//   storyId: string;
+//   estimatedFinishDate: Date;
+//   status: Status;
+//   createdDate: Date;
+// };
 
-type DoingTask = {
-  id: string; //?
-  name: string;
-  description: string;
-  priority: Priority;
-  storyId: string;
-  estimatedFinishDate: Date;
-  status: Status;
-  createdDate: Date;
-  startedDate: Date;
-  assigneeId: string;
-};
+// type DoingTask = {
+//   id: string; //?
+//   name: string;
+//   description: string;
+//   priority: Priority;
+//   storyId: string;
+//   estimatedFinishDate: Date;
+//   status: Status;
+//   createdDate: Date;
+//   startedDate: Date;
+//   assigneeId: string;
+// };
 
-type DoneTask = {
-  id: string; //?
-  name: string;
-  description: string;
-  priority: Priority;
-  storyId: string;
-  estimatedFinishDate: Date;
-  status: Status;
-  createdDate: Date;
-  startedDate: Date;
-  finishedDate: Date;
-  assigneeId: string;
-};
+// type DoneTask = {
+//   id: string; //?
+//   name: string;
+//   description: string;
+//   priority: Priority;
+//   storyId: string;
+//   estimatedFinishDate: Date;
+//   status: Status;
+//   createdDate: Date;
+//   startedDate: Date;
+//   finishedDate: Date;
+//   assigneeId: string;
+// };
 
 // class User {
 //   id: string;
@@ -739,25 +740,38 @@ async function handleShowTasksBtn() {
   showTasks();
 }
 
-function showTasks() {
+async function fetchTasks() {
+  try {
+    const response = await fetch("http://localhost:3000/ManageMeDB/task/");
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const tasks: ITask[] = await response.json();
+    return tasks;
+  } catch (error) {
+    console.error("Failed to fetch tasks:", error);
+    throw error;
+  }
+}
+
+async function showTasks() {
   toggleContainerNightMode();
   todoTasksContainer!.innerHTML = "";
   doingTasksContainer!.innerHTML = "";
   doneTasksContainer!.innerHTML = "";
 
-  const tasks = Object.keys(localStorage)
-    .filter((key) => key.startsWith("task"))
-    .map((key) => JSON.parse(localStorage[key]));
+  const tasks = await fetchTasks();
 
-  tasks.forEach((task) => {
+  tasks.forEach(async (task) => {
     let singleTaskDiv = document.createElement("div");
 
     let singleTaskName = document.createElement("span");
     singleTaskName.innerHTML = `Task name: ${task.name}`;
 
     let singleTaskAssignee = document.createElement("span");
-
-    const assignee = getuser(task.assigneeId);
+    const assignee = await fetchUser(task.assigneeId);
     singleTaskAssignee.innerHTML = assignee
       ? `Task assignee: ${assignee.firstName} ${assignee.lastName}`
       : "No task assignee";
@@ -784,8 +798,7 @@ function showTasks() {
   });
 }
 
-async function showModal(task: TodoTask | DoingTask | DoneTask) {
-  //Task
+async function showModal(task: ITask) {
   if (modalContentDiv) {
     modalContentDiv.innerHTML = "";
 
@@ -923,7 +936,7 @@ function closeModal() {
   closeModalBtn!.classList.add("hidden-element");
 }
 
-function handleEditTaskBtnClick(task: TodoTask | DoingTask | DoneTask) {
+function handleEditTaskBtnClick(task: ITask) {
   let saveUpdatedTaskBtn = document.createElement("button");
   saveUpdatedTaskBtn.innerText = "Save";
   saveUpdatedTaskBtn.addEventListener("click", () =>
@@ -937,8 +950,8 @@ function handleEditTaskBtnClick(task: TodoTask | DoingTask | DoneTask) {
   fillFormWithTaskData(task);
 }
 
-function handleSaveUpdatedTaskBtn(
-  task: TodoTask | DoingTask | DoneTask,
+async function handleSaveUpdatedTaskBtn(
+  task: ITask,
   saveUpdatedTaskBtn: HTMLButtonElement
 ) {
   const formData = getTasksFormData();
@@ -961,13 +974,36 @@ function handleSaveUpdatedTaskBtn(
   task.estimatedFinishDate = new Date(formData.estimatedFinishDate);
 
   saveUpdatedTaskBtn.style.display = "none";
-  updateTask(task.id, task);
+  await updateTask(task._id, task);
   toggleElementsVisibility();
   showTasks();
 }
 
-function updateTask(taskId: string, task: TodoTask | DoingTask | DoneTask) {
-  localStorage.setItem(taskId, JSON.stringify(task));
+async function updateTask(taskId: string, task: ITask) {
+  console.log("update task");
+  console.log(task);
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/task/${taskId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(task),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const savedTask: IStory = await response.json();
+    return savedTask;
+  } catch (error) {
+    console.error("Failed to update task:", error);
+    throw error;
+  }
 }
 
 function fillFormWithTaskData(task: TodoTask | DoingTask | DoneTask) {
@@ -994,16 +1030,6 @@ function hideKudoBoard() {
   doingTasksContainer!.innerHTML = "";
   doneTasksContainer!.innerHTML = "";
 }
-
-// function getStoryName(storyId: string): string {
-//   // const key = storiesKeyIdentifier + chosenProject!.id;
-//   // const storiesString = localStorage.getItem(key);
-//   // const stories: Story[] = storiesString ? JSON.parse(storiesString) : [];
-//   // const story: Story | undefined = stories.find(
-//   //   (story) => story._id === storyId
-//   // );
-//   // return story!.name;
-// }
 
 function moveTaskBack(task: DoingTask | DoneTask) {
   if (task.status === Status.Doing) {
@@ -1035,7 +1061,7 @@ function onNewTask(e: Event) {
     storyId,
     estimatedFinishDate
   );
-  saveTask(task as TodoTask);
+  saveTask(task);
   showTasks();
 }
 
@@ -1045,15 +1071,13 @@ function createTask(
   priority: Priority,
   storyId: string,
   estimatedFinishDate: string
-): TodoTask {
-  const id = (Math.random() + 1).toString(36).substring(7);
+): ITask {
   // const id = tasksKeyIdentifier + self.crypto.randomUUID();
   const createdDate = new Date();
   const owner = loggedUser;
 
   if (owner)
     return {
-      id,
       name,
       description,
       priority,
@@ -1061,7 +1085,7 @@ function createTask(
       estimatedFinishDate: new Date(estimatedFinishDate),
       status: Status.ToDo,
       createdDate,
-    };
+    } as ITask;
   throw new Error("Unable to create story.");
 }
 
@@ -1112,9 +1136,34 @@ function updateTaskToDone(task: DoingTask): DoneTask | null {
   return doneTask;
 }
 
-function saveTask(task: TodoTask | DoingTask | DoneTask) {
-  localStorage.setItem(task.id, JSON.stringify(task));
+async function saveTask(task: ITask) {
+  await postTask(task);
   showTasks();
+}
+
+async function postTask(task: ITask) {
+  console.log(JSON.stringify(task));
+  console.log(task);
+  //todo rename
+  try {
+    const response = await fetch("http://localhost:3000/ManageMeDB/task/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(task),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const savedTask: ITask = await response.json();
+    return savedTask;
+  } catch (error) {
+    console.error("Failed to save task:", error);
+    throw error;
+  }
 }
 
 function getTasksFormData() {
@@ -1234,6 +1283,25 @@ async function fetchUsers() {
   } catch (error) {
     console.error("Failed to fetch users:", error);
     throw error;
+  }
+}
+
+async function fetchUser(userId: string) {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/user/${userId}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const user: IUser = await response.json();
+    return user;
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    // throw error;
+    return null;
   }
 }
 

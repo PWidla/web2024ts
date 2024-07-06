@@ -32,30 +32,65 @@ router.get("/id", async (req: Request, res: Response) => {
 });
 
 router.post("/", async (req: Request, res: Response) => {
-  // const { name, description } = req.body;
+  const {
+    name,
+    description,
+    priority,
+    storyId,
+    estimatedFinishDate,
+    status,
+    createdDate,
+  } = req.body;
 
   try {
-    const newTask = req.body;
-    //^
+    const newTask = new Task({
+      name,
+      description,
+      priority,
+      storyId,
+      estimatedFinishDate,
+      status,
+      createdDate,
+    });
+
+    console.log("New task object created:", newTask);
 
     await newTask.save();
-
     res.status(201).json(newTask);
-  } catch (error) {
-    console.error("Error creating task:", error);
+  } catch (error: any) {
+    console.error("Error creating task:", error.message);
     res.status(500).json({ error: "Failed to create task" });
   }
 });
 
 router.put("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
-  //   const { name, description } = req.body;
-  const newContent = req.body;
+  const {
+    name,
+    description,
+    priority,
+    storyId,
+    estimatedFinishDate,
+    status,
+    createdDate,
+    startedDate,
+    finishedDate,
+  } = req.body;
 
   try {
     const updatedTask = await Task.findByIdAndUpdate(
       id,
-      { newContent }, //?
+      {
+        name,
+        description,
+        priority,
+        storyId,
+        estimatedFinishDate,
+        status,
+        createdDate,
+        startedDate,
+        finishedDate,
+      },
       { new: true }
     );
 
