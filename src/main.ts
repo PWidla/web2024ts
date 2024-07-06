@@ -771,7 +771,14 @@ async function showTasks() {
     singleTaskName.innerHTML = `Task name: ${task.name}`;
 
     let singleTaskAssignee = document.createElement("span");
+    console.log("task");
+    console.log(task);
+    console.log("task.assigneeId");
+    console.log(task.assigneeId);
+
     const assignee = await fetchUser(task.assigneeId);
+    console.log("assignee");
+    console.log(assignee);
     singleTaskAssignee.innerHTML = assignee
       ? `Task assignee: ${assignee.firstName} ${assignee.lastName}`
       : "No task assignee";
@@ -872,6 +879,10 @@ async function showModal(task: ITask) {
         const updatedTask = updateTaskToDoing(task);
         if (updatedTask) {
           await updateTask(task._id, updatedTask);
+          console.log("updatedTask");
+          console.log(updatedTask);
+          closeModal();
+          showTasks();
         }
       });
     }
@@ -884,6 +895,8 @@ async function showModal(task: ITask) {
         const updatedTask = updateTaskToDone(task);
         if (updatedTask) {
           await updateTask(task._id, updatedTask);
+          closeModal();
+          showTasks();
         }
       });
     }
@@ -976,7 +989,7 @@ async function handleSaveUpdatedTaskBtn(
 
   saveUpdatedTaskBtn.style.display = "none";
   await updateTask(task._id, task);
-  toggleElementsVisibility();
+  closeModal();
   showTasks();
 }
 
@@ -1037,11 +1050,15 @@ async function moveTaskBack(task: ITask) {
     const updatedTask = updateTaskToToDo(task);
     if (updatedTask) {
       await updateTask(task._id, updatedTask);
+      closeModal();
+      showTasks();
     }
   } else if (task.status === Status.Done) {
     const updatedTask = updateTaskToDoing(task);
     if (updatedTask) {
       await updateTask(task._id, updatedTask);
+      closeModal();
+      showTasks();
     }
   }
 }
@@ -1094,7 +1111,7 @@ function updateTaskToToDo(task: ITask): ITask {
   return {
     ...task,
     status: Status.ToDo,
-    assigneeId: "",
+    assigneeId: null,
   } as ITask;
 }
 
@@ -1109,7 +1126,7 @@ function updateTaskToDoing(task: ITask): ITask | null {
   const selectedAssignee = document.getElementById(
     "assigneeSelect"
   ) as HTMLSelectElement | null;
-  console.log(selectedAssignee);
+  console.log("selectedAssignee");
   console.log(selectedAssignee!.value);
 
   if (!selectedAssignee!.value) {

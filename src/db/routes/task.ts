@@ -75,6 +75,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     createdDate,
     startedDate,
     finishedDate,
+    assigneeId,
   } = req.body;
 
   try {
@@ -90,6 +91,7 @@ router.put("/:id", async (req: Request, res: Response) => {
         createdDate,
         startedDate,
         finishedDate,
+        assigneeId,
       },
       { new: true }
     );
