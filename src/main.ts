@@ -70,7 +70,7 @@ const loginFormContainer = document.getElementById("login-form-container");
 
 let nightModeOn = false;
 
-let loggedUser: typeof User | null = null;
+let loggedUser: IUser | null = null;
 let chosenProject: IProject | null = null;
 
 loginForm!.addEventListener("submit", function (e) {
@@ -581,7 +581,7 @@ async function showStories(): Promise<void> {
     let storySpan = document.createElement("span");
     let deleteStoryBtn = document.createElement("button");
     let updateStoryBtn = document.createElement("button");
-    storySpan.innerHTML = `Name: ${story.name}, Description: ${story.description}, Priority: ${story.priority}, Created Date: ${story.createdDate}, Status: ${story.status}, Owner: ${story.owner.firstName} ${story.owner.lastName}`;
+    storySpan.innerHTML = `Name: ${story.name}, Description: ${story.description}, Priority: ${story.priority}, Created Date: ${story.createdDate}, Status: ${story.status}, Owner: ${story.owner}`;
     storySpan.addEventListener("click", () => markStoryOut(storyDiv));
 
     deleteStoryBtn.classList.add("story-button");
@@ -755,7 +755,7 @@ function showTasks() {
 
     let singleTaskAssignee = document.createElement("span");
 
-    const assignee = getUserById(task.assigneeId);
+    const assignee = getuser(task.assigneeId);
     singleTaskAssignee.innerHTML = assignee
       ? `Task assignee: ${assignee.firstName} ${assignee.lastName}`
       : "No task assignee";
@@ -782,7 +782,8 @@ function showTasks() {
   });
 }
 
-function showModal(task: TodoTask | DoingTask | DoneTask) {
+async function showModal(task: TodoTask | DoingTask | DoneTask) {
+  //Task
   if (modalContentDiv) {
     modalContentDiv.innerHTML = "";
 
@@ -824,11 +825,12 @@ function showModal(task: TodoTask | DoingTask | DoneTask) {
 
     let assigneeSelect = document.createElement("select");
     assigneeSelect.id = "assigneeSelect";
-    const assignees: User[] = getAssignees();
+    const users: IUser[] = await fetchUsers();
+    const assignees = users.filter((u) => u.role != Role.Admin);
     assignees.forEach((assignee) => {
       let assigneeOption = document.createElement("option");
 
-      assigneeOption.value = assignee.id;
+      assigneeOption.value = assignee._id;
       assigneeOption.text = `${assignee.firstName} ${assignee.lastName}`;
       assigneeSelect.appendChild(assigneeOption);
     });
@@ -1013,14 +1015,6 @@ function moveTaskBack(task: DoingTask | DoneTask) {
       saveTask(updatedTask);
     }
   }
-}
-
-function getAssignees(): User[] {
-  return Object.keys(localStorage)
-    .filter(
-      (key) => key.startsWith("user-DevOps") || key.startsWith("user-Developer")
-    )
-    .map((key) => JSON.parse(localStorage[key]));
 }
 
 function onNewTask(e: Event) {
@@ -1299,6 +1293,9 @@ async function handleUserLoginLogout(user: IUser, logIn: boolean) {
 
   await updateUserLogIn(user, updatedUser);
 
+  if (updatedUser.loggedIn) {
+    loggedUser = user;
+  }
   toggleLogInForm();
 }
 
