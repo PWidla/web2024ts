@@ -492,8 +492,6 @@ async function onNewStory(e: Event) {
     priority as Priority,
     status as Status
   );
-  console.log("story we savin");
-  console.log(story);
   await saveStory(story as IStory);
   showStories();
 }
@@ -529,8 +527,6 @@ function createStory(
   const project = chosenProject;
   const createdDate = new Date();
   const owner = loggedUser; //poprawic jak bedzie przez api tworzenie ownera bo teraz sie nie pokrywa
-
-  console.log("Creating story with owner:", owner);
 
   if (project && owner) {
     const newStory = new Story({
@@ -771,14 +767,8 @@ async function showTasks() {
     singleTaskName.innerHTML = `Task name: ${task.name}`;
 
     let singleTaskAssignee = document.createElement("span");
-    console.log("task");
-    console.log(task);
-    console.log("task.assigneeId");
-    console.log(task.assigneeId);
 
     const assignee = await fetchUser(task.assigneeId);
-    console.log("assignee");
-    console.log(assignee);
     singleTaskAssignee.innerHTML = assignee
       ? `Task assignee: ${assignee.firstName} ${assignee.lastName}`
       : "No task assignee";
@@ -868,7 +858,7 @@ async function showModal(task: ITask) {
     deleteTaskBtn.id = "deleteTaskBtn";
     deleteTaskBtn.innerHTML = "Delete";
     deleteTaskBtn.addEventListener("click", function () {
-      handleDeleteTaskBtnClick(task.id);
+      handleDeleteTaskBtnClick(task._id);
     });
 
     let saveTaskBtn = document.createElement("button");
@@ -879,8 +869,6 @@ async function showModal(task: ITask) {
         const updatedTask = updateTaskToDoing(task);
         if (updatedTask) {
           await updateTask(task._id, updatedTask);
-          console.log("updatedTask");
-          console.log(updatedTask);
           closeModal();
           showTasks();
         }
@@ -938,10 +926,28 @@ async function showModal(task: ITask) {
   }
 }
 
-function handleDeleteTaskBtnClick(taskId: string) {
-  localStorage.removeItem(taskId);
+async function handleDeleteTaskBtnClick(taskId: string) {
+  await deleteTask(taskId);
   showTasks();
   closeModal();
+}
+
+async function deleteTask(taskId: string) {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/task/${taskId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    throw error;
+  }
 }
 
 function closeModal() {
@@ -994,8 +1000,6 @@ async function handleSaveUpdatedTaskBtn(
 }
 
 async function updateTask(taskId: string, task: ITask) {
-  console.log("update task");
-  console.log(task);
   try {
     const response = await fetch(
       `http://localhost:3000/ManageMeDB/task/${taskId}`,
@@ -1126,8 +1130,6 @@ function updateTaskToDoing(task: ITask): ITask | null {
   const selectedAssignee = document.getElementById(
     "assigneeSelect"
   ) as HTMLSelectElement | null;
-  console.log("selectedAssignee");
-  console.log(selectedAssignee!.value);
 
   if (!selectedAssignee!.value) {
     alert("Choose assignee");
@@ -1160,8 +1162,6 @@ async function saveTask(task: ITask) {
 }
 
 async function postTask(task: ITask) {
-  console.log(JSON.stringify(task));
-  console.log(task);
   //todo rename
   try {
     const response = await fetch("http://localhost:3000/ManageMeDB/task/", {
@@ -1261,9 +1261,6 @@ function createUser(
 // }
 
 async function saveUser(user: IUser) {
-  console.log("save user");
-  console.log(user);
-  console.log(JSON.stringify(user));
   try {
     const response = await fetch("http://localhost:3000/ManageMeDB/user/", {
       method: "POST",
@@ -1278,8 +1275,6 @@ async function saveUser(user: IUser) {
     }
 
     const savedUser: IUser = await response.json();
-    console.log("saveUser");
-    console.log(savedUser._id);
 
     return savedUser;
   } catch (error) {

@@ -53,8 +53,6 @@ router.post("/", async (req: Request, res: Response) => {
       createdDate,
     });
 
-    console.log("New task object created:", newTask);
-
     await newTask.save();
     res.status(201).json(newTask);
   } catch (error: any) {
