@@ -1524,3 +1524,12 @@ showStoriesBtn?.addEventListener("click", handleShowStoriesBtn);
 toggleNightModeBtn!.addEventListener("click", handleToggleNightMode);
 
 mockUsers();
+//notifiactions
+const initialUnreadCount = NotificationService.unreadCountSubject.value;
+updateUnreadCount(initialUnreadCount);
+
+function updateUnreadCount(count: number) {
+  if (unreadCountDiv) {
+    unreadCountDiv.innerText = `Unread notifications: ${count}`;
+  }
+}

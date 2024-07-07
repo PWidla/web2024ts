@@ -10,19 +10,24 @@ export type Notification = {
   read: boolean;
 };
 
+const unreadCountElement = document.getElementById("unread-count");
+
 class NotificationService {
-  private notifications: Notification[] = [];
-  private notificationsSubject: BehaviorSubject<Notification[]> =
+  public notifications: Notification[] = [];
+  public notificationsSubject: BehaviorSubject<Notification[]> =
     new BehaviorSubject<Notification[]>(this.notifications);
-  private unreadCountSubject: BehaviorSubject<number> =
+  public unreadCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
   send(notification: Notification): void {
     this.notifications.push(notification);
     this.notificationsSubject.next(this.notifications);
+
     if (!notification.read) {
       this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
+      updateUnreadCount(this.unreadCountSubject.value + 1);
     }
+
     if (
       notification.priority === "medium" ||
       notification.priority === "high"
@@ -39,7 +44,7 @@ class NotificationService {
     return this.unreadCountSubject.asObservable();
   }
 
-  private showDialog(notification: Notification): void {
+  public showDialog(notification: Notification): void {
     alert(`Notification: ${notification.title}\n${notification.message}`);
   }
 
@@ -48,7 +53,14 @@ class NotificationService {
       this.notifications[index].read = true;
       this.notificationsSubject.next(this.notifications);
       this.unreadCountSubject.next(this.unreadCountSubject.value - 1);
+      updateUnreadCount(this.unreadCountSubject.value);
     }
+  }
+}
+
+function updateUnreadCount(count: number) {
+  if (unreadCountElement) {
+    unreadCountElement.innerText = `Unread notifications: ${count}`;
   }
 }
 
