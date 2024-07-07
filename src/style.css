@@ -58,7 +58,6 @@ button {
 }
 
 .entity-container-night-mode > div {
- 
   background-color: #702614;
 }
 
@@ -113,7 +112,8 @@ button {
   display: block;
 }
 
-#task-modal {
+#task-modal,
+#notification-modal {
   display: none;
   position: fixed;
   z-index: 9999;
@@ -130,7 +130,8 @@ button {
   right: 0;
 }
 
-#modal-content {
+#modal-content,
+#notification-modal-content {
   background-color: white;
   margin: 20% auto;
   padding: 20px;

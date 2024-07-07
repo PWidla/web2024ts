@@ -73,6 +73,22 @@ const submitTaskFormBtn = document.getElementById("submit-task-btn");
 //login form
 const loginFormContainer = document.getElementById("login-form-container");
 const unreadCountDiv = document.getElementById("unread-count");
+const notificationModalDiv = document.getElementById("notification-modal");
+const closeNotificationModalBtn = document.getElementById(
+  "close-notification-modal-btn"
+);
+const notificationModalContentDiv = document.getElementById(
+  "notification-modal-content"
+);
+
+unreadCountDiv!.addEventListener("click", function (e) {
+  showNotificationsModal();
+});
+
+// NotificationService.list().subscribe((notifications) => {
+//   // Aktualizacja widoku modalu po zmianie powiadomień
+//   updateNotificationsModal(notifications);
+// });
 
 let nightModeOn = false;
 
@@ -1532,4 +1548,109 @@ function updateUnreadCount(count: number) {
   if (unreadCountDiv) {
     unreadCountDiv.innerText = `Unread notifications: ${count}`;
   }
+}
+
+unreadCountDiv!.addEventListener("click", function (e) {
+  showNotificationsModal(true); // Pokazuje tylko nieprzeczytane powiadomienia
+});
+
+NotificationService.list().subscribe((notifications: Notification[]) => {
+  updateNotificationsModal(notifications);
+});
+
+function showNotificationsModal(showOnlyUnread: boolean = false) {
+  if (
+    notificationModalDiv &&
+    notificationModalContentDiv &&
+    closeNotificationModalBtn
+  ) {
+    notificationModalContentDiv.classList.remove("hidden-element");
+    notificationModalContentDiv.innerHTML = "";
+
+    let notificationsToShow: Notification[] = NotificationService.notifications;
+    if (showOnlyUnread) {
+      notificationsToShow = notificationsToShow.filter(
+        (notification) => !notification.read
+      );
+    }
+
+    notificationsToShow.forEach((notification) => {
+      let notificationElement = createNotificationElement(notification);
+      notificationModalContentDiv.appendChild(notificationElement);
+    });
+
+    notificationModalDiv.style.display = "block";
+    closeNotificationModalBtn.classList.remove("hidden-element");
+    closeNotificationModalBtn.addEventListener("click", () =>
+      closeNotificationModal()
+    );
+  }
+}
+
+function closeNotificationModal() {
+  if (
+    notificationModalDiv &&
+    notificationModalContentDiv &&
+    closeNotificationModalBtn
+  ) {
+    notificationModalDiv.style.display = "none";
+    closeNotificationModalBtn.classList.add("hidden-element");
+  }
+}
+
+function updateNotificationsModal(notifications: Notification[]) {
+  if (notificationModalContentDiv) {
+    notificationModalContentDiv.innerHTML = "";
+
+    notifications.forEach((notification) => {
+      let notificationElement = createNotificationElement(notification);
+      notificationModalContentDiv.appendChild(notificationElement);
+    });
+  }
+}
+
+function createNotificationElement(notification: Notification): HTMLDivElement {
+  let notificationElement = document.createElement("div");
+  notificationElement.classList.add("notification-item");
+
+  let titleElement = document.createElement("h2");
+  titleElement.innerText = notification.title;
+
+  let messageElement = document.createElement("p");
+  messageElement.innerText = notification.message;
+
+  let dateElement = document.createElement("p");
+  dateElement.innerText = `Date: ${new Date(
+    notification.date
+  ).toLocaleDateString()}`;
+
+  let priorityElement = document.createElement("p");
+  priorityElement.innerText = `Priority: ${notification.priority}`;
+
+  let readStatusElement = document.createElement("p");
+  readStatusElement.innerText = `Read: ${notification.read ? "Yes" : "No"}`;
+
+  if (!notification.read) {
+    let markAsReadBtn = document.createElement("button");
+    markAsReadBtn.innerText = "Mark as Read";
+    markAsReadBtn.addEventListener("click", function () {
+      handleMarkAsRead(notification);
+    });
+    notificationElement.appendChild(markAsReadBtn);
+  }
+
+  notificationElement.appendChild(titleElement);
+  notificationElement.appendChild(messageElement);
+  notificationElement.appendChild(dateElement);
+  notificationElement.appendChild(priorityElement);
+  notificationElement.appendChild(readStatusElement);
+
+  return notificationElement;
+}
+
+function handleMarkAsRead(notification: Notification) {
+  NotificationService.markAsRead(notification);
+  updateNotificationsModal(
+    NotificationService.notifications.filter((notif) => !notif.read)
+  );
 }

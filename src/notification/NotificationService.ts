@@ -48,12 +48,12 @@ class NotificationService {
     alert(`Notification: ${notification.title}\n${notification.message}`);
   }
 
-  markAsRead(index: number): void {
-    if (!this.notifications[index].read) {
+  markAsRead(notification: Notification): void {
+    const index = this.notifications.findIndex((n) => n === notification);
+    if (index !== -1 && !this.notifications[index].read) {
       this.notifications[index].read = true;
       this.notificationsSubject.next(this.notifications);
       this.unreadCountSubject.next(this.unreadCountSubject.value - 1);
-      updateUnreadCount(this.unreadCountSubject.value);
     }
   }
 }
