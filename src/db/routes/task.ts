@@ -42,6 +42,15 @@ router.post("/", async (req: Request, res: Response) => {
     createdDate,
   } = req.body;
 
+  const existingTask = await Task.findOne({ name });
+
+  if (existingTask) {
+    console.log("exists");
+    return res
+      .status(409)
+      .json({ message: "Task with this name already exists" });
+  }
+
   try {
     const newTask = new Task({
       name,

@@ -209,7 +209,15 @@ async function saveProject(project: IProject) {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error. Status: ${response.status}`);
+      let errorMessage = "Failed to save project.";
+
+      if (response.status === 409) {
+        alert("Project with this name already exists.");
+      } else if (response.status === 500) {
+        errorMessage = "Internal server error. Please try again later.";
+      }
+
+      throw new Error(errorMessage);
     }
 
     const savedProject: IProject = await response.json();
@@ -435,7 +443,12 @@ async function saveUpdatedProject(
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error. Status: ${response.status}`);
+      let errorMessage = "Failed to save project.";
+      if (response.status === 500) {
+        errorMessage = "Internal server error. Please try again later.";
+      }
+
+      throw new Error(errorMessage);
     }
 
     const updatedProjectData: IProject = await response.json();
@@ -507,7 +520,15 @@ async function saveStory(story: IStory): Promise<IStory> {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error. Status: ${response.status}`);
+      let errorMessage = "Failed to save story.";
+
+      if (response.status === 409) {
+        alert("Story with this name already exists.");
+      } else if (response.status === 500) {
+        errorMessage = "Internal server error. Please try again later.";
+      }
+
+      throw new Error(errorMessage);
     }
 
     const savedStory: IStory = await response.json();
@@ -658,7 +679,12 @@ async function saveUpdatedStory(story: IStory): Promise<IStory> {
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error. Status: ${response.status}`);
+      let errorMessage = "Failed to save story.";
+      if (response.status === 500) {
+        errorMessage = "Internal server error. Please try again later.";
+      }
+
+      throw new Error(errorMessage);
     }
 
     const savedStory: IStory = await response.json();
@@ -1174,7 +1200,15 @@ async function postTask(task: ITask) {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error. Status: ${response.status}`);
+      let errorMessage = "Failed to save task.";
+
+      if (response.status === 409) {
+        alert("Task with this name already exists.");
+      } else if (response.status === 500) {
+        errorMessage = "Internal server error. Please try again later.";
+      }
+
+      throw new Error(errorMessage);
     }
 
     const savedTask: ITask = await response.json();

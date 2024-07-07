@@ -31,6 +31,14 @@ async function getProject(req: Request, res: Response, next: NextFunction) {
 
 router.post("/", async (req: Request, res: Response) => {
   const { name, description } = req.body;
+  const existingProject = await Project.findOne({ name });
+
+  if (existingProject) {
+    console.log("exists");
+    return res
+      .status(409)
+      .json({ message: "Project with this name already exists" });
+  }
 
   try {
     const newProject = new Project({

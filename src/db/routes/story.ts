@@ -40,6 +40,13 @@ router.get("/:id", getStory, (req: Request, res: Response) => {
 
 router.post("/", async (req: Request, res: Response) => {
   const { name, description, priority, project, status, owner } = req.body;
+  const existingStory = await Story.findOne({ name });
+
+  if (existingStory) {
+    return res
+      .status(409)
+      .json({ message: "Story with this name already exists" });
+  }
 
   try {
     const newStory = new Story({
