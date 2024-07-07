@@ -2,6 +2,10 @@ import Project, { IProject } from "./db/models/project";
 import { Story, IStory, Priority, Status } from "./db/models/story";
 import { User, Role, IUser } from "./db/models/user";
 import { Task, ITask } from "./db/models/task";
+import { Observable } from "rxjs";
+import NotificationService, {
+  Notification,
+} from "./notification/NotificationService";
 
 const mainContainer = document.getElementById("main");
 const toggleNightModeBtn = document.getElementById("toggle-night-mode-btn");
@@ -68,6 +72,7 @@ const closeModalBtn = document.getElementById("close-modal-btn");
 const submitTaskFormBtn = document.getElementById("submit-task-btn");
 //login form
 const loginFormContainer = document.getElementById("login-form-container");
+const unreadCountDiv = document.getElementById("unread-count");
 
 let nightModeOn = false;
 
@@ -114,7 +119,16 @@ async function onNewProject(e: Event) {
   }
 
   const project = createProject(name, description);
-  await saveProject(project);
+  const savedProject = await saveProject(project);
+  const newProjectNotification: Notification = {
+    title: "New Project Created",
+    message: `Project '${savedProject.name}' has been created.`,
+    date: new Date().toISOString(),
+    priority: "low",
+    read: false,
+  };
+
+  NotificationService.send(newProjectNotification);
   showProjects();
 }
 
@@ -184,6 +198,7 @@ async function fetchProjects(): Promise<IProject[]> {
 
 function toggleLoginFormVisibility() {
   loginFormContainer!.classList.toggle("hidden-element");
+  unreadCountDiv!.classList.toggle("hidden-element");
 }
 
 function toggleProjectsElementsVisibility() {
@@ -425,8 +440,33 @@ async function onNewStory(e: Event) {
     priority as Priority,
     status as Status
   );
-  await saveStory(story as IStory);
+  const savedStory = await saveStory(story as IStory);
+  const savedStoryNotification: Notification = {
+    title: "New Story Created",
+    message: `Story '${savedStory.name}' has been created.`,
+    date: savedStory.createdDate.toISOString(),
+    priority: mapStatusToPriority(savedStory.status),
+    read: false,
+  };
+
+  NotificationService.send(savedStoryNotification);
+  showProjects();
   showStories();
+}
+
+function mapStatusToPriority(status: Status): "low" | "medium" | "high" {
+  const lowerCaseStatus = status.toLowerCase();
+
+  switch (lowerCaseStatus) {
+    case "low":
+      return "low";
+    case "medium":
+      return "medium";
+    case "high":
+      return "high";
+    default:
+      throw new Error(`Unknown status: ${status}`);
+  }
 }
 
 async function saveStory(story: IStory): Promise<IStory> {
@@ -1018,7 +1058,7 @@ async function moveTaskBack(task: ITask) {
   }
 }
 
-function onNewTask(e: Event) {
+async function onNewTask(e: Event) {
   const { name, description, priority, storyId, estimatedFinishDate } =
     getTasksFormData();
 
@@ -1034,7 +1074,15 @@ function onNewTask(e: Event) {
     storyId,
     estimatedFinishDate
   );
-  saveTask(task);
+  const savedTask = await saveTask(task);
+  const savedStoryNotification: Notification = {
+    title: "New Task Created",
+    message: `Task '${savedTask.name}' has been created.`,
+    date: savedTask.createdDate.toISOString(),
+    priority: mapStatusToPriority(savedTask.status),
+    read: false,
+  };
+  NotificationService.send(savedStoryNotification);
   showTasks();
 }
 
@@ -1045,7 +1093,6 @@ function createTask(
   storyId: string,
   estimatedFinishDate: string
 ): ITask {
-  // const id = tasksKeyIdentifier + self.crypto.randomUUID();
   const createdDate = new Date();
   const owner = loggedUser;
 
@@ -1108,8 +1155,9 @@ function updateTaskToDone(task: ITask): ITask | null {
 }
 
 async function saveTask(task: ITask) {
-  await postTask(task);
+  const postedTask = await postTask(task);
   showTasks();
+  return postedTask;
 }
 
 async function postTask(task: ITask) {
