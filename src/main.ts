@@ -808,8 +808,7 @@ async function showModal(task: ITask) {
     let singleTaskPriority = document.createElement("span");
     singleTaskPriority.innerHTML = `Task Priority: ${task.priority}`;
 
-    // const storyName = getStoryName(task.storyId);
-    const storyName = "story name mock";
+    const storyName = task.storyId;
     let singleTaskStory = document.createElement("span");
     singleTaskStory.innerHTML = `Story: ${storyName}`;
 
@@ -831,7 +830,7 @@ async function showModal(task: ITask) {
       .slice(0, 10)}`;
 
     let assigneeLabel = document.createElement("label");
-    assigneeLabel.innerHTML = "Assignee:";
+    assigneeLabel.innerHTML = `Assignee: ${task.assigneeId}`;
     assigneeLabel.id = "assigneeSelectLabel";
     assigneeLabel.setAttribute("for", "assigneeSelect");
 
@@ -995,6 +994,7 @@ async function handleSaveUpdatedTaskBtn(
 
   saveUpdatedTaskBtn.style.display = "none";
   await updateTask(task._id, task);
+  toggleElementsVisibility();
   closeModal();
   showTasks();
 }
@@ -1038,7 +1038,8 @@ function fillFormWithTaskData(task: ITask) {
 
 function toggleElementsVisibility() {
   tasksContainer!.classList.toggle("hidden-element");
-  tasksContainer!.classList.toggle("entity-container");
+  // tasksContainer!.classList.toggle("entity-container");
+  tasksContainer!.classList.toggle("tasks-container");
   tasksContainerHeader!.classList.toggle("hidden-element");
   submitTaskFormBtn!.classList.toggle("hidden-element");
 }
