@@ -460,8 +460,8 @@ async function onNewStory(e: Event) {
   const savedStoryNotification: Notification = {
     title: "New Story Created",
     message: `Story '${savedStory.name}' has been created.`,
-    date: savedStory.createdDate.toISOString(),
-    priority: mapStatusToPriority(savedStory.status),
+    date: new Date(savedStory.createdDate).toISOString(),
+    priority: mapStatusToPriority(savedStory.priority),
     read: false,
   };
 
@@ -470,8 +470,8 @@ async function onNewStory(e: Event) {
   showStories();
 }
 
-function mapStatusToPriority(status: Status): "low" | "medium" | "high" {
-  const lowerCaseStatus = status.toLowerCase();
+function mapStatusToPriority(priority: Priority): "low" | "medium" | "high" {
+  const lowerCaseStatus = priority.toLowerCase();
 
   switch (lowerCaseStatus) {
     case "low":
@@ -1094,8 +1094,8 @@ async function onNewTask(e: Event) {
   const savedStoryNotification: Notification = {
     title: "New Task Created",
     message: `Task '${savedTask.name}' has been created.`,
-    date: savedTask.createdDate.toISOString(),
-    priority: mapStatusToPriority(savedTask.status),
+    date: new Date(savedTask.createdDate).toISOString(),
+    priority: mapStatusToPriority(savedTask.priority),
     read: false,
   };
   NotificationService.send(savedStoryNotification);
