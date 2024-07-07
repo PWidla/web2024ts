@@ -1543,10 +1543,18 @@ mockUsers();
 //notifiactions
 const initialUnreadCount = NotificationService.unreadCountSubject.value;
 updateUnreadCount(initialUnreadCount);
+const initialAllNotificationsCount = NotificationService.notifications.length;
+updateAllNotificationsCount(initialAllNotificationsCount);
 
 function updateUnreadCount(count: number) {
   if (unreadCountDiv) {
     unreadCountDiv.innerText = `Unread notifications: ${count}`;
+  }
+}
+
+function updateAllNotificationsCount(count: number) {
+  if (allNotificationsCountDiv) {
+    allNotificationsCountDiv.innerText = `All notifications: ${count}`;
   }
 }
 

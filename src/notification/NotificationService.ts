@@ -11,12 +11,17 @@ export type Notification = {
 };
 
 const unreadCountElement = document.getElementById("unread-count");
+const allNotificationsCountElement = document.getElementById(
+  "all-notifications-count"
+);
 
 class NotificationService {
   public notifications: Notification[] = [];
   public notificationsSubject: BehaviorSubject<Notification[]> =
     new BehaviorSubject<Notification[]>(this.notifications);
   public unreadCountSubject: BehaviorSubject<number> =
+    new BehaviorSubject<number>(0);
+  public allNotificationsCountSubject: BehaviorSubject<number> =
     new BehaviorSubject<number>(0);
 
   send(notification: Notification): void {
@@ -27,6 +32,9 @@ class NotificationService {
       this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
       updateUnreadCount(this.unreadCountSubject.value + 1);
     }
+
+    this.allNotificationsCountSubject.next(this.notifications.length);
+    updateAllNotificationsCount(this.notifications.length);
 
     if (
       notification.priority === "medium" ||
@@ -44,7 +52,11 @@ class NotificationService {
     return this.unreadCountSubject.asObservable();
   }
 
-  public showDialog(notification: Notification): void {
+  allNotificationsCount(): Observable<number> {
+    return this.allNotificationsCountSubject.asObservable();
+  }
+
+  showDialog(notification: Notification): void {
     alert(`Notification: ${notification.title}\n${notification.message}`);
   }
 
@@ -54,6 +66,7 @@ class NotificationService {
       this.notifications[index].read = true;
       this.notificationsSubject.next(this.notifications);
       this.unreadCountSubject.next(this.unreadCountSubject.value - 1);
+      updateUnreadCount(this.unreadCountSubject.value - 1);
     }
   }
 }
@@ -61,6 +74,12 @@ class NotificationService {
 function updateUnreadCount(count: number) {
   if (unreadCountElement) {
     unreadCountElement.innerText = `Unread notifications: ${count}`;
+  }
+}
+
+function updateAllNotificationsCount(count: number) {
+  if (allNotificationsCountElement) {
+    allNotificationsCountElement.innerText = `All notifications: ${count}`;
   }
 }
 
