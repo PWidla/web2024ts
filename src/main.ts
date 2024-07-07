@@ -94,86 +94,6 @@ storyCreateForm!.addEventListener("submit", function (e) {
   onNewStory(e);
 });
 
-// type TodoTask = {
-//   id: string; //?
-//   name: string;
-//   description: string;
-//   priority: Priority;
-//   storyId: string;
-//   estimatedFinishDate: Date;
-//   status: Status;
-//   createdDate: Date;
-// };
-
-// type DoingTask = {
-//   id: string; //?
-//   name: string;
-//   description: string;
-//   priority: Priority;
-//   storyId: string;
-//   estimatedFinishDate: Date;
-//   status: Status;
-//   createdDate: Date;
-//   startedDate: Date;
-//   assigneeId: string;
-// };
-
-// type DoneTask = {
-//   id: string; //?
-//   name: string;
-//   description: string;
-//   priority: Priority;
-//   storyId: string;
-//   estimatedFinishDate: Date;
-//   status: Status;
-//   createdDate: Date;
-//   startedDate: Date;
-//   finishedDate: Date;
-//   assigneeId: string;
-// };
-
-// class User {
-//   id: string;
-//   username: string;
-//   password: string;
-//   firstName: string;
-//   lastName: string;
-//   loggedIn: boolean;
-//   role: Role;
-
-//   constructor(
-//     id: string,
-//     username: string,
-//     password: string,
-//     firstName: string,
-//     lastName: string,
-//     role: Role
-//   ) {
-//     this.id = id;
-//     this.username = username;
-//     this.password = password;
-//     this.firstName = firstName;
-//     this.lastName = lastName;
-//     this.loggedIn = false;
-//     this.role = role;
-//   }
-
-//   login(): void {
-//     loggedUser = this;
-//     this.loggedIn = true;
-//     toggleLoginFormVisibility();
-//     toggleProjectsElementsVisibility();
-//     showProjects();
-//   }
-
-//   logout(): void {
-//     loggedUser = null;
-//     this.loggedIn = false;
-//     toggleLoginFormVisibility();
-//     toggleProjectsElementsVisibility();
-//   }
-// }
-
 function getProjectFormData() {
   const nameInput = document.getElementById("project-name") as HTMLInputElement;
   const descriptionInput = document.getElementById(
@@ -547,7 +467,7 @@ function createStory(
 ): IStory {
   const project = chosenProject;
   const createdDate = new Date();
-  const owner = loggedUser; //poprawic jak bedzie przez api tworzenie ownera bo teraz sie nie pokrywa
+  const owner = loggedUser?._id;
 
   if (project && owner) {
     const newStory = new Story({
@@ -557,8 +477,7 @@ function createStory(
       project: project._id,
       createdDate,
       status,
-      // owner: owner.id,
-      owner: "667737f4f9b8bc1f1d99ad95",
+      owner,
     });
 
     return newStory;
@@ -594,12 +513,19 @@ async function showStories(): Promise<void> {
   }
   storiesContainer!.innerHTML = "";
 
-  stories.forEach((story: IStory) => {
+  stories.forEach(async (story: IStory) => {
     let storyDiv = document.createElement("div");
     let storySpan = document.createElement("span");
     let deleteStoryBtn = document.createElement("button");
     let updateStoryBtn = document.createElement("button");
-    storySpan.innerHTML = `Name: ${story.name}, Description: ${story.description}, Priority: ${story.priority}, Created Date: ${story.createdDate}, Status: ${story.status}, Owner: ${story.owner}`;
+    const owner = await fetchUser(story.owner._id);
+    storySpan.innerHTML = `Name: ${story.name}, Description: ${
+      story.description
+    }, Priority: ${story.priority}, Created Date: ${new Date(
+      story.createdDate
+    ).toLocaleString()}, Status: ${story.status}, Owner: ${owner?.firstName} ${
+      owner?.lastName
+    }`;
     storySpan.addEventListener("click", () => markStoryOut(storyDiv));
 
     deleteStoryBtn.classList.add("story-button");
@@ -735,8 +661,6 @@ function toggleStories(): void {
 //tasks
 
 function handleShowStoriesBtn() {
-  // projectFormContainer?.classList.toggle("form-container");
-  // projectsContainer!.classList.toggle("entity-container");
   toggleStories();
   toggleTasks();
 }
@@ -1249,7 +1173,6 @@ function createUser(
   role: Role
 ): IUser {
   const loggedIn = false;
-  // const user = localStorage.getItem(`user-${username}`);
   return new User({
     username,
     password,
@@ -1258,42 +1181,7 @@ function createUser(
     lastName,
     role,
   });
-  // alert("User with this username alreadt exists");
 }
-
-// function getUserByUsername(username: string): User | null {
-//   const userString = localStorage.getItem(`user-${username}`);
-//   if (userString) {
-//     const userData = JSON.parse(userString);
-//     return new User(
-//       userData.id,
-//       userData.username,
-//       userData.password,
-//       userData.firstName,
-//       userData.lastName,
-//       userData.Role
-//     );
-//   }
-//   return null;
-// }
-
-// function getUserById(userId: string) {
-//   const users: User[] = [];
-
-//   for (const key of Object.keys(localStorage)) {
-//     if (key.startsWith("user")) {
-//       const userData = localStorage.getItem(key);
-//       if (userData) {
-//         const user: User = JSON.parse(userData);
-//         if (typeof user === "object" && user !== null) {
-//           users.push(user);
-//         }
-//       }
-//     }
-//   }
-
-//   return users.find((user) => user.id == userId);
-// }
 
 async function saveUser(user: IUser) {
   try {
@@ -1588,5 +1476,3 @@ showStoriesBtn?.addEventListener("click", handleShowStoriesBtn);
 toggleNightModeBtn!.addEventListener("click", handleToggleNightMode);
 
 mockUsers();
-// await mockUsers();
-// showProjects();
