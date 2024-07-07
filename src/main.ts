@@ -73,6 +73,9 @@ const submitTaskFormBtn = document.getElementById("submit-task-btn");
 //login form
 const loginFormContainer = document.getElementById("login-form-container");
 const unreadCountDiv = document.getElementById("unread-count");
+const allNotificationsCountDiv = document.getElementById(
+  "all-notifications-count"
+);
 const notificationModalDiv = document.getElementById("notification-modal");
 const closeNotificationModalBtn = document.getElementById(
   "close-notification-modal-btn"
@@ -80,10 +83,6 @@ const closeNotificationModalBtn = document.getElementById(
 const notificationModalContentDiv = document.getElementById(
   "notification-modal-content"
 );
-
-unreadCountDiv!.addEventListener("click", function (e) {
-  showNotificationsModal();
-});
 
 // NotificationService.list().subscribe((notifications) => {
 //   // Aktualizacja widoku modalu po zmianie powiadomień
@@ -215,6 +214,7 @@ async function fetchProjects(): Promise<IProject[]> {
 function toggleLoginFormVisibility() {
   loginFormContainer!.classList.toggle("hidden-element");
   unreadCountDiv!.classList.toggle("hidden-element");
+  allNotificationsCountDiv!.classList.toggle("hidden-element");
 }
 
 function toggleProjectsElementsVisibility() {
@@ -1551,7 +1551,11 @@ function updateUnreadCount(count: number) {
 }
 
 unreadCountDiv!.addEventListener("click", function (e) {
-  showNotificationsModal(true); // Pokazuje tylko nieprzeczytane powiadomienia
+  showNotificationsModal(true);
+});
+
+allNotificationsCountDiv!.addEventListener("click", function (e) {
+  showNotificationsModal(false);
 });
 
 NotificationService.list().subscribe((notifications: Notification[]) => {
@@ -1575,7 +1579,10 @@ function showNotificationsModal(showOnlyUnread: boolean = false) {
     }
 
     notificationsToShow.forEach((notification) => {
-      let notificationElement = createNotificationElement(notification);
+      let notificationElement = createNotificationElement(
+        notification,
+        showOnlyUnread
+      );
       notificationModalContentDiv.appendChild(notificationElement);
     });
 
@@ -1603,13 +1610,16 @@ function updateNotificationsModal(notifications: Notification[]) {
     notificationModalContentDiv.innerHTML = "";
 
     notifications.forEach((notification) => {
-      let notificationElement = createNotificationElement(notification);
+      let notificationElement = createNotificationElement(notification, false);
       notificationModalContentDiv.appendChild(notificationElement);
     });
   }
 }
 
-function createNotificationElement(notification: Notification): HTMLDivElement {
+function createNotificationElement(
+  notification: Notification,
+  showOnlyUnread: boolean
+): HTMLDivElement {
   let notificationElement = document.createElement("div");
   notificationElement.classList.add("notification-item");
 
@@ -1630,7 +1640,7 @@ function createNotificationElement(notification: Notification): HTMLDivElement {
   let readStatusElement = document.createElement("p");
   readStatusElement.innerText = `Read: ${notification.read ? "Yes" : "No"}`;
 
-  if (!notification.read) {
+  if (!notification.read && showOnlyUnread) {
     let markAsReadBtn = document.createElement("button");
     markAsReadBtn.innerText = "Mark as Read";
     markAsReadBtn.addEventListener("click", function () {
@@ -1650,7 +1660,8 @@ function createNotificationElement(notification: Notification): HTMLDivElement {
 
 function handleMarkAsRead(notification: Notification) {
   NotificationService.markAsRead(notification);
-  updateNotificationsModal(
-    NotificationService.notifications.filter((notif) => !notif.read)
-  );
+  showNotificationsModal(true);
+  NotificationService.unreadCount().subscribe((count) => {
+    updateUnreadCount(count);
+  });
 }
