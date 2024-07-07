@@ -4,10 +4,10 @@ import "dotenv/config";
 import cors from "cors";
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 // const tokenSecret = process.env.TOKEN_SECRET as string;
-const tokenSecret = process.env.TOKEN_SECRET;
+const tokenSecret = "tokenSecretDummy";
 let refreshToken: string;
 
 app.use(cors());

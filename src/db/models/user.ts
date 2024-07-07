@@ -13,6 +13,8 @@ export interface IUser extends Document {
   lastName: string;
   loggedIn: boolean;
   role: Role;
+  token: string | null;
+  refreshToken: string | null;
 }
 
 const UserSchema: Schema = new Schema(
@@ -23,6 +25,8 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String, required: true },
     loggedIn: { type: Boolean, default: false },
     role: { type: String, enum: Object.values(Role), required: true },
+    token: { type: String, default: null, required: false },
+    refreshToken: { type: String, default: null, required: false },
   },
   { collection: "user" }
 );

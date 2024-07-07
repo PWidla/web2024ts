@@ -1379,6 +1379,8 @@ async function handleUserLoginLogout(user: IUser, logIn: boolean) {
 
   if (updatedUser.loggedIn) {
     loggedUser = user;
+    const token = await fetchToken();
+    await saveToken(token.token, token.refreshToken, user._id);
   }
   toggleLogInForm();
 }
@@ -1436,19 +1438,25 @@ async function onLogin(e: Event) {
     return;
   }
 
-  const user = getUserByUsername(username);
+  const users = await fetchUsers();
+  const user = users.filter((u) => u.username == username)[0];
+
   if (!user || user.password != password) {
     alert("Incorrect credentials");
     return;
   }
 
+  const token = await fetchToken();
+  await saveToken(token.token, token.refreshToken, user._id);
+}
+
+async function fetchToken() {
   try {
-    const response = await fetch("http://localhost:3000/token", {
+    const response = await fetch("http://localhost:3001/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      // body: JSON.stringify({ username, password }),
     });
 
     if (!response.ok) {
@@ -1456,12 +1464,59 @@ async function onLogin(e: Event) {
     }
 
     const data = await response.json();
-    if (data.token) {
-      user.login();
-    }
-    // Store token
+    return data;
   } catch (error) {
     console.error("Error:", error);
+  }
+}
+
+async function refreshToken() {
+  try {
+    const response = await fetch("http://localhost:3001/refreshToken", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function saveToken(token: string, refreshToken: string, userId: string) {
+  const updatedUser: Partial<IUser> = {
+    _id: userId,
+    token,
+    refreshToken,
+  };
+
+  try {
+    const response = await fetch(
+      `http://localhost:3000/ManageMeDB/user/${userId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedUser),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error. Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to save token: ", error);
   }
 }
 
