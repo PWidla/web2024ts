@@ -30,7 +30,7 @@ class NotificationService {
 
     if (!notification.read) {
       this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
-      updateUnreadCount(this.unreadCountSubject.value + 1);
+      updateUnreadCount(this.unreadCountSubject.value);
     }
 
     this.allNotificationsCountSubject.next(this.notifications.length);
