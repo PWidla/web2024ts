@@ -574,6 +574,8 @@ async function showStories(): Promise<void> {
     let storySpan = document.createElement("span");
     let deleteStoryBtn = document.createElement("button");
     let updateStoryBtn = document.createElement("button");
+    let saveUpdatedStoryBtn = document.createElement("button");
+
     const owner = await fetchUser(story.owner._id);
     storySpan.innerHTML = `Name: ${story.name}, Description: ${
       story.description
@@ -590,27 +592,40 @@ async function showStories(): Promise<void> {
       handleDeleteStoryClick(story._id)
     );
 
+    saveUpdatedStoryBtn.classList.add("story-button");
+    saveUpdatedStoryBtn.innerText = "Save";
+    saveUpdatedStoryBtn.addEventListener("click", () =>
+      handleSaveUpdatedStory(story)
+    );
+
     updateStoryBtn.classList.add("story-button");
     updateStoryBtn.innerText = "Update";
     updateStoryBtn.addEventListener("click", () =>
-      handleUpdateStoryClick(story, storyDiv, storySpan)
+      handleUpdateStoryClick(story, storyDiv, storySpan, saveUpdatedStoryBtn)
     );
 
     storyDiv.appendChild(storySpan);
     storyDiv.appendChild(deleteStoryBtn);
     storyDiv.appendChild(updateStoryBtn);
+    storyDiv.appendChild(saveUpdatedStoryBtn);
     storiesContainer!.appendChild(storyDiv);
   });
 }
 
 function markStoryOut(storyDiv: HTMLDivElement): void {
+  const selectedStory: HTMLDivElement | null =
+    document.querySelector(".marked");
+  if (selectedStory) {
+    selectedStory.classList.toggle("marked");
+  }
   storyDiv.classList.toggle("marked");
 }
 
 function handleUpdateStoryClick(
   story: IStory,
   storyDiv: HTMLDivElement,
-  storySpan: HTMLSpanElement
+  storySpan: HTMLSpanElement,
+  saveUpdatedStoryBtn: HTMLButtonElement
 ) {
   storySpan.classList.add("beingUpdated");
 
@@ -618,13 +633,7 @@ function handleUpdateStoryClick(
   storyDescriptionInput!.value = story.description;
   storyPriorityInput!.value = story.priority;
   storyStatusInput!.value = story.status;
-
-  let saveUpdatedProjectBtn = document.createElement("button");
-  saveUpdatedProjectBtn.innerText = "Save";
-  saveUpdatedProjectBtn.addEventListener("click", () =>
-    handleSaveUpdatedStory(story)
-  );
-  storyDiv.appendChild(saveUpdatedProjectBtn);
+  saveUpdatedStoryBtn.classList.remove("hidden-element");
 }
 
 async function handleSaveUpdatedStory(story: IStory): Promise<void> {
