@@ -16,6 +16,8 @@ const projectFormContainer = document.getElementById("project-form-container");
 const projectsH3 = document.getElementById("projects-h3");
 //stories
 const storyCreateForm = document.getElementById("story-form-container");
+const submitStoryFormBtn = document.getElementById("submit-story-btn");
+
 const showTasksBtn = document.getElementById("showTasksBtn");
 const showProjectsBtn = document.getElementById("showProjectsBtn");
 const storiesContainer = document.getElementById("stories-container");
@@ -619,6 +621,7 @@ function markStoryOut(storyDiv: HTMLDivElement): void {
     selectedStory.classList.toggle("marked");
   }
   storyDiv.classList.toggle("marked");
+  submitStoryFormBtn!.classList.remove("hidden-element");
 }
 
 function handleUpdateStoryClick(
@@ -634,10 +637,12 @@ function handleUpdateStoryClick(
   storyPriorityInput!.value = story.priority;
   storyStatusInput!.value = story.status;
   saveUpdatedStoryBtn.classList.remove("hidden-element");
+  submitStoryFormBtn!.classList.add("hidden-element");
 }
 
 async function handleSaveUpdatedStory(story: IStory): Promise<void> {
   await saveUpdatedStory(story);
+  submitStoryFormBtn!.classList.remove("hidden-element");
   showStories();
 }
 
