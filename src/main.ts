@@ -915,7 +915,10 @@ async function showModal(task: ITask) {
       modalContentDiv.appendChild(assigneeLabel);
       modalContentDiv.appendChild(assigneeSelect);
       modalContentDiv.appendChild(saveTaskBtn);
-      modalContentDiv.appendChild(finishTaskBtn);
+
+      if (task.status !== "ToDo") {
+        modalContentDiv.appendChild(finishTaskBtn);
+      }
     }
 
     if (task.status !== "ToDo") {
@@ -1181,7 +1184,6 @@ function updateTaskToDone(task: ITask): ITask | null {
 
 async function saveTask(task: ITask) {
   const postedTask = await postTask(task);
-  showTasks();
   return postedTask;
 }
 
